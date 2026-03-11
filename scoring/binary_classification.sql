@@ -1,37 +1,47 @@
-WITH stats_table AS (
-   SELECT
-            donations.donor_id
-           ,COUNT(donations.donation_id) AS donation_count
-           ,SUM(donations.amount) AS donation_amount
-          
-       FROM donations 
-       GROUP BY donations.donor_id
-       ORDER BY donation_count desc
-   )
-,global_limits AS
-   (SELECT
-      
-       MIN(donation_count) min_count
-       ,MIN(donation_amount) min_amount
-       ,MAX(donation_count)  max_count
-       ,MAX(donation_amount) max_amount
-      
-   FROM stats_table)
-,normalization AS      
-   (SELECT
-           donor_id
-           ,(donation_count-min_count)/NULLIF(max_count-min_count,0) AS norm_count
-           ,(donation_amount-min_amount)/NULLIF(max_amount-min_amount,0) AS norm_amount
-       FROM stats_table
-       CROSS JOIN global_limits
-   )
-SELECT
-   donor_id
-   ,norm_count
-   ,norm_amount
-   ,norm_amount*0.7 + norm_count*0.3 AS donor_score
-FROM normalization
-ORDER BY donor_score DESC  
-  
-   ;
+/* TEMPLATE: Multi-Metric Weighted Scoring (Normalization)
+Purpose: Rank users by combining two different metrics (e.g., Volume vs. Value).
+*/
 
+WITH raw_metrics AS (
+    -- Step 1: Replace these columns with whatever you want to rank
+    SELECT
+        donor_id AS entity_id,
+        CAST(COUNT(donation_id) AS FLOAT) AS metric_a, -- e.g., Frequency
+        CAST(SUM(amount) AS FLOAT)      AS metric_b  -- e.g., Monetary Value
+    FROM donations
+    GROUP BY 1
+),
+
+limits AS (
+    -- Step 2: Get Min/Max for normalization using window functions (no join needed)
+    SELECT 
+        *,
+        MAX(metric_a) OVER() AS max_a,
+        MIN(metric_a) OVER() AS min_a,
+        MAX(metric_b) OVER() AS max_b,
+        MIN(metric_b) OVER() AS min_b
+    FROM raw_metrics
+),
+
+normalized AS (
+    -- Step 3: Scale metrics between 0 and 1
+    SELECT 
+        entity_id,
+        metric_a,
+        metric_b,
+        (metric_a - min_a) / NULLIF(max_a - min_a, 0) AS norm_a,
+        (metric_b - min_b) / NULLIF(max_b - min_b, 0) AS norm_b
+    FROM limits
+)
+
+-- Step 4: Apply Weights and Score
+-- ADJUST WEIGHTS HERE: Ensure they sum to 1.0 (e.g., 0.3 and 0.7)
+SELECT 
+    entity_id,
+    metric_a AS frequency,
+    metric_b AS monetary,
+    ROUND(norm_a, 4) AS score_frequency,
+    ROUND(norm_b, 4) AS score_monetary,
+    ROUND((norm_a * 0.3) + (norm_b * 0.7), 4) AS final_donor_score
+FROM normalized
+ORDER BY final_donor_score DESC;
