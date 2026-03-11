@@ -1,0 +1,209 @@
+/* PASO 0: Declaración de todos los experimentos */
+DECLARE @Exp_0 VARCHAR(50) = 'exp_0', @Exp_1 VARCHAR(50) = 'exp_1', @Exp_2 VARCHAR(50) = 'exp_2';
+DECLARE @Exp_3 VARCHAR(50) = 'exp_3', @Exp_4 VARCHAR(50) = 'exp_4', @Exp_5 VARCHAR(50) = 'exp_5';
+DECLARE @Exp_6 VARCHAR(50) = 'exp_6', @Exp_7 VARCHAR(50) = 'exp_7', @Exp_8 VARCHAR(50) = 'exp_8';
+DECLARE @Exp_9 VARCHAR(50) = 'exp_9';
+WITH base_rates AS (
+   SELECT
+       funnel_category,
+       -- BASELINE: Usuarios que NO vieron ningún experimento del rango exp_0-exp_9
+       AVG(CASE WHEN experiment_name NOT IN (@Exp_0,@Exp_1,@Exp_2,@Exp_3,@Exp_4,@Exp_5,@Exp_6,@Exp_7,@Exp_8,@Exp_9) OR experiment_name IS NULL
+                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_control,
+      
+       -- Cálculo de CR para cada experimento individualmente
+       AVG(CASE WHEN experiment_name = @Exp_0 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_0,
+       AVG(CASE WHEN experiment_name = @Exp_1 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_1,
+       AVG(CASE WHEN experiment_name = @Exp_2 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_2,
+       AVG(CASE WHEN experiment_name = @Exp_3 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_3,
+       AVG(CASE WHEN experiment_name = @Exp_4 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_4,
+       AVG(CASE WHEN experiment_name = @Exp_5 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_5,
+       AVG(CASE WHEN experiment_name = @Exp_6 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_6,
+       AVG(CASE WHEN experiment_name = @Exp_7 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_7,
+       AVG(CASE WHEN experiment_name = @Exp_8 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_8,
+       AVG(CASE WHEN experiment_name = @Exp_9 THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_9
+   FROM Datawarehouse.gold.vw_user_zscore_segmentation
+   GROUP BY funnel_category
+)
+,final_calc AS	(
+	SELECT
+	    funnel_category,
+	    ROUND(cr_control, 2) AS cr_baseline,
+	   
+	    -- Exp 0
+	    @Exp_0 AS exp0_id, ROUND(cr_exp_0 - cr_control, 2) AS shapley_0, ROUND((cr_exp_0 - cr_control)/NULLIF(cr_control,0),2) AS shapley_0_perc
+	    -- Exp 1
+	    ,@Exp_1 AS exp1_id, ROUND(cr_exp_1 - cr_control, 2) AS shapley_1, ROUND((cr_exp_1 - cr_control)/NULLIF(cr_control,0),2) AS shapley_1_perc
+	    -- Exp 2
+	    ,@Exp_2 AS exp2_id, ROUND(cr_exp_2 - cr_control, 2) AS shapley_2, ROUND((cr_exp_2 - cr_control)/NULLIF(cr_control,0),2) AS shapley_2_perc
+	    -- Exp 3
+	    ,@Exp_3 AS exp3_id, ROUND(cr_exp_3 - cr_control, 2) AS shapley_3, ROUND((cr_exp_3 - cr_control)/NULLIF(cr_control,0),2) AS shapley_3_perc
+	    -- Exp 4
+	    ,@Exp_4 AS exp4_id, ROUND(cr_exp_4 - cr_control, 2) AS shapley_4, ROUND((cr_exp_4 - cr_control)/NULLIF(cr_control,0),2) AS shapley_4_perc
+	    -- Exp 5
+	    ,@Exp_5 AS exp5_id, ROUND(cr_exp_5 - cr_control, 2) AS shapley_5, ROUND((cr_exp_5 - cr_control)/NULLIF(cr_control,0),2) AS shapley_5_perc
+	    -- Exp 6
+	    ,@Exp_6 AS exp6_id, ROUND(cr_exp_6 - cr_control, 2) AS shapley_6, ROUND((cr_exp_6 - cr_control)/NULLIF(cr_control,0),2) AS shapley_6_perc
+	    -- Exp 7
+	    ,@Exp_7 AS exp7_id, ROUND(cr_exp_7 - cr_control, 2) AS shapley_7, ROUND((cr_exp_7 - cr_control)/NULLIF(cr_control,0),2) AS shapley_7_perc
+	    -- Exp 8
+	    ,@Exp_8 AS exp8_id, ROUND(cr_exp_8 - cr_control, 2) AS shapley_8, ROUND((cr_exp_8 - cr_control)/NULLIF(cr_control,0),2) AS shapley_8_perc
+	    -- Exp 9
+	    ,@Exp_9 AS exp9_id, ROUND(cr_exp_9 - cr_control, 2) AS shapley_9, ROUND((cr_exp_9 - cr_control)/NULLIF(cr_control,0),2) AS shapley_9_perc
+	
+	FROM base_rates
+	WHERE cr_control IS NOT NULL
+	)
+SELECT
+	funnel_category
+   ,cr_baseline
+   ,shapley_0_perc
+   ,shapley_1_perc
+   ,shapley_2_perc
+   ,shapley_3_perc
+   ,shapley_4_perc
+   ,shapley_5_perc
+   ,shapley_6_perc
+   ,shapley_7_perc
+   ,shapley_8_perc
+   ,shapley_9_perc
+   -- Promedios de Shapley % para cada experimento (0-9)
+   ,ROUND(AVG(shapley_0_perc) OVER (), 2) AS avg_shapley_0_perc
+   ,ROUND(AVG(shapley_1_perc) OVER (), 2) AS avg_shapley_1_perc
+   ,ROUND(AVG(shapley_2_perc) OVER (), 2) AS avg_shapley_2_perc
+   ,ROUND(AVG(shapley_3_perc) OVER (), 2) AS avg_shapley_3_perc
+   ,ROUND(AVG(shapley_4_perc) OVER (), 2) AS avg_shapley_4_perc
+   ,ROUND(AVG(shapley_5_perc) OVER (), 2) AS avg_shapley_5_perc
+   ,ROUND(AVG(shapley_6_perc) OVER (), 2) AS avg_shapley_6_perc
+   ,ROUND(AVG(shapley_7_perc) OVER (), 2) AS avg_shapley_7_perc
+   ,ROUND(AVG(shapley_8_perc) OVER (), 2) AS avg_shapley_8_perc
+   ,ROUND(AVG(shapley_9_perc) OVER (), 2) AS avg_shapley_9_perc
+FROM final_calc
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+WITH CTE AS	(SELECT
+	    CASE
+	        WHEN funnel_type = 'general' AND funnel_category != 'fasting' THEN 'baseline'
+	        WHEN funnel_type = 'general' AND funnel_category = 'fasting' THEN 'only_fasting'
+	        WHEN funnel_type = 'experiment' AND experiment_name = 'exp_4' AND funnel_category != 'fasting' THEN 'only_exp4'
+	        WHEN funnel_type = 'experiment' AND experiment_name = 'exp_4' AND funnel_category = 'fasting' THEN 'fasting_plus_exp4'
+	    END AS segment,
+	    COUNT(user_id) AS users_total,
+	    SUM(CASE WHEN max_level_reached = 5 THEN 1 ELSE 0 END) AS users_success,
+	    ROUND(
+	        SUM(CASE WHEN max_level_reached = 5 THEN 1 ELSE 0 END) * 100.0 / COUNT(user_id),
+	        2
+	    ) AS CR
+	FROM Datawarehouse.gold.vw_user_zscore_segmentation
+	
+	GROUP BY
+	    CASE
+	        WHEN funnel_type = 'general' AND funnel_category != 'fasting' THEN 'baseline'
+	        WHEN funnel_type = 'general' AND funnel_category = 'fasting' THEN 'only_fasting'
+	        WHEN funnel_type = 'experiment' AND experiment_name = 'exp_4' AND funnel_category != 'fasting' THEN 'only_exp4'
+	        WHEN funnel_type = 'experiment' AND experiment_name = 'exp_4' AND funnel_category = 'fasting' THEN 'fasting_plus_exp4'
+	    END)
+, marginals AS (
+	SELECT
+		MAX(CASE WHEN segment = 'baseline' THEN CR END) AS v_base
+		,MAX(CASE WHEN segment = 'only_fasting' THEN CR END) AS v_fasting
+		,MAX(CASE WHEN segment = 'only_exp4' THEN CR END) AS v_exp4
+		,MAX(CASE WHEN segment = 'fasting_plus_exp4' THEN CR END) AS v_fasting_exp4
+	FROM CTE
+	)
+SELECT *
+	,v_fasting-v_base AS fasting_value_gen
+	,v_fasting_exp4-v_exp4 AS fasting_value_exp
+	,v_fasting_exp4-v_fasting  AS exp_value_fast
+	,v_exp4-v_base  AS exp_value_gen
+	,((v_fasting-v_base)+(v_fasting_exp4-v_exp4))/2.0 AS shapley_fasting
+	,((v_fasting_exp4-v_fasting)+(v_exp4-v_base ))/2.0 AS shapley_exp_4
+FROM marginals
+;
+
+
+
+
+
+
+
+
+/* PASO 0: Definimos los dos experimentos a comparar */
+DECLARE @Exp_A VARCHAR(50) = 'exp_5';
+DECLARE @Exp_B VARCHAR(50) = 'exp_4';
+DECLARE @Exp_C VARCHAR(50) = 'exp_0';
+WITH base_rates AS (
+   SELECT
+       funnel_category,
+       -- BASELINE: Usuarios que NO vieron ninguno de los dos experimentos
+       AVG(CASE WHEN experiment_name NOT IN (@Exp_A, @Exp_B) OR experiment_name IS NULL
+                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_control,
+      
+       -- IMPACTO EXP A: Usuarios que vieron el primer experimento
+       AVG(CASE WHEN experiment_name = @Exp_A
+                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_a
+       -- IMPACTO EXP B: Usuarios que vieron el segundo experimento
+       ,AVG(CASE WHEN experiment_name = @Exp_B
+                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_b
+               
+       -- IMPACTO EXP C: Usuarios que vieron el segundo experimento
+       ,AVG(CASE WHEN experiment_name = @Exp_C
+                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_c               
+               
+   FROM Datawarehouse.gold.vw_user_zscore_segmentation
+   GROUP BY funnel_category
+)
+SELECT
+   funnel_category,
+   ROUND(cr_control, 2) AS cr_baseline,
+  
+   -- Métricas para Experimento A (exp_5)
+   @Exp_A AS experiment_a,
+   ROUND(cr_exp_a, 2) AS cr_a,
+   ROUND(cr_exp_a - cr_control, 2) AS shapley_a
+   ,ROUND((cr_exp_a - cr_control)/cr_control,2) AS shapley_a_perc
+   ,ROUND(AVG((cr_exp_a - cr_control)/cr_control)  OVER () ,2) AS shapley_a_perc_avg
+  
+   -- Métricas para Experimento B (exp_4)
+   ,@Exp_B AS experiment_b,
+   ROUND(cr_exp_b, 2) AS cr_b,
+   ROUND(cr_exp_b - cr_control, 2) AS shapley_b
+	,ROUND((cr_exp_b - cr_control)/cr_control,2) AS shapley_b_perc
+   ,ROUND(AVG((cr_exp_b - cr_control)/cr_control)  OVER () ,2) AS shapley_b_perc_avg
+   
+   -- Métricas para Experimento C (exp_0)
+   ,@Exp_C AS experiment_c,
+   ROUND(cr_exp_c, 2) AS cr_c,
+   ROUND(cr_exp_c - cr_control, 2) AS shapley_c
+   ,ROUND((cr_exp_c - cr_control)/cr_control, 2) AS shapley_c_perc
+   ,ROUND(AVG((cr_exp_c - cr_control)/cr_control) OVER (), 2) AS shapley_c_perc_avg 
+ 
+FROM base_rates
+WHERE cr_control IS NOT NULL;
+
+
+
