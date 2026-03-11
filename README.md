@@ -9,12 +9,9 @@ This repository contains a collection of advanced statistical models designed to
 
 1. Behavioral Dispersion (The "Consistency" Check)
 Determine if your users are having a uniform experience or if behavior is wildly unpredictable.
-
-Metrics: Variance, Standard Deviation, Coefficient of Variation (CV).
-
-Business Questions: * Is the user journey "stable," or is it vastly different for every person?
-
-How far is a typical user from the "normal" experience?
+- Metrics: Variance, Standard Deviation, Coefficient of Variation (CV).
+- Business Questions: * Is the user journey "stable," or is it vastly different for every person?
+- How far is a typical user from the "normal" experience?
 
 2. Distribution & Concentration (The "Pareto" Check)
 Identify if your revenue or traffic depends on a tiny elite group (Whales) or a broad base.
