@@ -1,61 +1,58 @@
-WITH cte1 AS
-   (
-   SELECT
-    donations.assignment_id
-   ,assignments.region
-   ,donations.amount
-   FROM donations
-   JOIN assignments ON assignments.assignment_id = donations.assignment_id
-   )
-,mediat_stats AS
-   (SELECT
-       region
-       ,COUNT(amount) as donations_count
-       ,ROUND(AVG(amount),2)  AS avg_donation
-       ,ROUND(SUM(amount),2)  AS total_donation
-       ,PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount) AS median_donation
-       ,ROUND(STDDEV(amount),2) AS st_desv_donation
-       ,ROUND(STDDEV(amount)/AVG(amount),2)  AS CV_donation
-   from cte1
-   GROUP BY region )
-,final_stats AS
-   (SELECT
-       mediat_stats.region
-       ,cte1.amount
-       ,mediat_stats.total_donation
-       ,mediat_stats.avg_donation
-       ,mediat_stats.median_donation
-       ,mediat_stats.st_desv_donation
-       ,mediat_stats.CV_donation
-       ,SUM(cte1.amount) OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC )
-   AS Running_total
-       ,SUM(ROUND(cte1.amount/mediat_stats.total_donation*100,2)) OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC ) AS Running_perc
-       ,ROW_NUMBER () OVER(PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC) AS rank
-       ,PERCENT_RANK() OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount desc) AS perc_rank
-       ,(cte1.amount - mediat_stats.avg_donation) / mediat_stats.st_desv_donation AS z_score
-   ,ROUND(
-   SUM(POWER(cte1.amount - mediat_stats.avg_donation, 3))
-   OVER(PARTITION BY mediat_stats.region) -- Fundamental para separar por región
-   /
-   ((mediat_stats.donations_count - 1) * POWER(mediat_stats.st_desv_donation, 3))
-, 2)  AS skewness
-   
-   FROM mediat_stats  
-   JOIN cte1 ON cte1.region= mediat_stats.region)
+/* TEMPLATE: Regional Outlier & Pareto Analysis
+Purpose: Identify top contributors (Top 20%) and measure distribution health (Skewness/Z-Score).
+*/
+
+WITH raw_data AS (
+    -- Step 1: Join and define your dimension and metric
+    SELECT
+        a.region AS group_id,
+        CAST(d.amount AS FLOAT) AS val
+    FROM donations d
+    JOIN assignments a ON a.assignment_id = d.assignment_id
+),
+
+stats_base AS (
+    -- Step 2: Calculate basic stats using Window Functions (Avoids the Join-Back)
+    SELECT 
+        *,
+        COUNT(*) OVER(PARTITION BY group_id) AS n_count,
+        SUM(val) OVER(PARTITION BY group_id) AS total_val,
+        AVG(val) OVER(PARTITION BY group_id) AS avg_val,
+        STDDEV(val) OVER(PARTITION BY group_id) AS stdev_val
+    FROM raw_data
+),
+
+metrics_calc AS (
+    -- Step 3: Advanced Stats (Running Totals, Z-Score, Skewness)
+    SELECT
+        group_id,
+        val,
+        total_val,
+        avg_val,
+        stdev_val,
+        -- Coefficient of Variation (CV)
+        ROUND(stdev_val / NULLIF(avg_val, 0), 2) AS cv_ratio,
+        -- Running Percentage (Pareto Logic)
+        SUM(val) OVER(PARTITION BY group_id ORDER BY val DESC) / NULLIF(total_val, 0) AS running_perc,
+        -- Relative Rank (0 to 1)
+        PERCENT_RANK() OVER(PARTITION BY group_id ORDER BY val DESC) AS p_rank,
+        -- Z-Score (Outlier Detection)
+        (val - avg_val) / NULLIF(stdev_val, 0) AS z_score,
+        -- Skewness (Fisher’s)
+        SUM(POWER(val - avg_val, 3)) OVER(PARTITION BY group_id) 
+            / (NULLIF((n_count - 1) * POWER(stdev_val, 3), 0)) AS skewness_val
+    FROM stats_base
+)
+
+-- Step 4: Final Filter & Reporting
 SELECT
-   region
-   ,total_donation
-   ,avg_donation
-   ,median_donation
-   ,st_desv_donation
-   ,CV_donation
-   ,Running_perc
-   ,perc_rank
-   ,z_score
-   ,skewness
-   , (3*(avg_donation-median_donation))
-       /st_desv_donation AS skewness_2
-FROM final_stats
-WHERE perc_rank<0.21
-ORDER BY perc_rank DESC
-LIMIT 4
+    group_id,
+    ROUND(total_val, 2) AS total,
+    ROUND(avg_val, 2) AS average,
+    ROUND(cv_ratio, 2) AS volatility_index,
+    ROUND(running_perc * 100, 2) AS pct_of_total_revenue,
+    ROUND(z_score, 2) AS outlier_score,
+    ROUND(skewness_val, 2) AS skewness
+FROM metrics_calc
+WHERE p_rank <= 0.20  -- Focusing on the Top 20% (Pareto Principle)
+ORDER BY group_id, val DESC;
