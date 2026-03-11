@@ -38,9 +38,9 @@ Calculate the true marginal impact of every experiment or funnel step.
 - How important is a specific step in the user funnel for the final success?
 
 🚀 How to Use These Templates
-1.Define your Dimension: (e.g., campaign_id, region, or user_id).
-2.Define your Metric: (e.g., sessions, revenue, or donations).
-3.Plug & Play: Each SQL file is modular. Update the base_data CTE at the top, and the statistical calculations will update automatically.
+1. Define your Dimension: (e.g., campaign_id, region, or user_id).
+2. Define your Metric: (e.g., sessions, revenue, or donations).
+3. Plug & Play: Each SQL file is modular. Update the base_data CTE at the top, and the statistical calculations will update automatically.
 
 🛠 Tech Stack
 Language: SQL (Optimized for BigQuery, Snowflake, and Redshift).
