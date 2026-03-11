@@ -15,43 +15,33 @@ Determine if your users are having a uniform experience or if behavior is wildly
 
 2. Distribution & Concentration (The "Pareto" Check)
 Identify if your revenue or traffic depends on a tiny elite group (Whales) or a broad base.
-
-Metrics: Pearson & Fisher Skewness, Gini Coefficient, Running Percentage, Percent Rank.
-
-Business Questions: * Do we depend on a few big segments, or is the input equal across the board?
-
-Is our experience optimized for the "average" user or only for specific outliers?
+- Metrics: Pearson & Fisher Skewness, Gini Coefficient, Running Percentage, Percent Rank.
+- Business Questions: * Do we depend on a few big segments, or is the input equal across the board?
+- Is our experience optimized for the "average" user or only for specific outliers?
 
 3. Categorization & Scoring (The "Bot & VIP" Check)
 Isolate unusual behavior to identify high-value users, struggling segments, or potential bot traffic.
-
-Metrics: Z-Score, Min-Max Normalization, Binary Classification.
-
-Business Questions: * Which users show "unnatural" behavior? (Identifying bots or bugs).
-
-What is the priority if Money is worth 70% and Loyalty is worth 30%?
+- Metrics: Z-Score, Min-Max Normalization, Binary Classification.
+- Business Questions: * Which users show "unnatural" behavior? (Identifying bots or bugs).
+- What is the priority if Money is worth 70% and Loyalty is worth 30%?
 
 4. Experience Efficiency (The "Intelligence" Check)
 Measure the ROI of your user experience and the productivity of your marketing funnel.
-
-Metrics: Solow Growth Model (Adapted for UX), Efficiency Index.
-
-Business Questions: * How "intelligent" is our funnel at converting effort into value?
-
-Am I wasting resources or am I spending them smartly?
+- Metrics: Solow Growth Model (Adapted for UX), Efficiency Index.
+- Business Questions: * How "intelligent" is our funnel at converting effort into value?
+- Am I wasting resources or am I spending them smartly?
 
 5. Incrementality & Attribution (The "Game Changer" Check)
 Calculate the true marginal impact of every experiment or funnel step.
-
-Metrics: Marginal Contribution (Shapley Value), CR Lift.
-
-Business Questions: * Which specific experiment was a "game changer"?
-
-How important is a specific step in the user funnel for the final success?
+- Metrics: Marginal Contribution (Shapley Value), CR Lift.
+- Business Questions: * Which specific experiment was a "game changer"?
+- How important is a specific step in the user funnel for the final success?
 
 🚀 How to Use These Templates
-Define your Dimension: (e.g., campaign_id, region, or user_id).
+1.Define your Dimension: (e.g., campaign_id, region, or user_id).
+2.Define your Metric: (e.g., sessions, revenue, or donations).
+3.Plug & Play: Each SQL file is modular. Update the base_data CTE at the top, and the statistical calculations will update automatically.
 
-Define your Metric: (e.g., sessions, revenue, or donations).
-
-Modular Logic: Each SQL file is designed so you only update the top section, and the statistical math updates automatically at the bottom.
+🛠 Tech Stack
+Language: SQL (Optimized for BigQuery, Snowflake, and Redshift).
+Math: Descriptive Statistics, Linear Normalization, and Attribution Modeling.
