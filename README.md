@@ -1,54 +1,60 @@
-# marketing-analysis
-This repo contains a set of models to get insights from you marketing traffic:
+To ensure the formatting (bolding, hierarchy, and spacing) stays exactly as intended when you copy and paste it into a README file or a document, it is best to use standard Markdown.
 
-Dispersion:
-User experience dispersion: User experience is similar or diverse? How differente is user experiance from the "normal"
-- Varianza  
-- Desviación Estándar 
-- CV  
+Markdown is the native language of GitHub/GitLab and is also recognized by most modern docs (Notion, Google Docs, Slack, etc.).
 
-Distribuion:
-Wha is the norm? 
-How different is real #user experience# from the norm? 
-Is there one or more #user segments#?
-Our #user experience# is good for all users or only for few segments?
-Do we depend of few big segments or the input is ecual?
-  - The Pearson correlation coefficient  
-  - Fisher Skewness 
-  - Coeficiente de Gini
-  - Running Percentage
-  - Percent Rank
-  
-Categorization:
-Which #users# have unusual behavour?
-Should we treat some #user segents# differently?
-Are there bot users?
-  - Z-Score
-  - Normalización (Min-Max)
-  - Binary Classification (Scoring)
-    
-Efficiency:
-How efficient is our #user experience#?
-How Intellegent is our #user experience#?
-Is this a low or high value user?
-Can I earn more with same resources?
-Am I wasting resources or am I intellegent?
-  - Solow Model 
+Copy the content below:
 
-Wich test worked better?
-Is this test a game changer?
-How important is this step at the user funnel?
-- Shapley Value
+📈 Marketing Analysis Toolkit (SQL)
+This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and donor/user behavior.
 
-What is the sussess formula?
-What is the priority if money is worth 70% and loyalty 30%?
--Binary Classification
+1. Behavioral Dispersion (The "Consistency" Check)
+Determine if your users are having a uniform experience or if behavior is wildly unpredictable.
 
+Metrics: Variance, Standard Deviation, Coefficient of Variation (CV).
 
+Business Questions: * Is the user journey "stable," or is it vastly different for every person?
 
+How far is a typical user from the "normal" experience?
 
+2. Distribution & Concentration (The "Pareto" Check)
+Identify if your revenue or traffic depends on a tiny elite group (Whales) or a broad base.
 
+Metrics: Pearson & Fisher Skewness, Gini Coefficient, Running Percentage, Percent Rank.
 
+Business Questions: * Do we depend on a few big segments, or is the input equal across the board?
 
+Is our experience optimized for the "average" user or only for specific outliers?
 
+3. Categorization & Scoring (The "Bot & VIP" Check)
+Isolate unusual behavior to identify high-value users, struggling segments, or potential bot traffic.
 
+Metrics: Z-Score, Min-Max Normalization, Binary Classification.
+
+Business Questions: * Which users show "unnatural" behavior? (Identifying bots or bugs).
+
+What is the priority if Money is worth 70% and Loyalty is worth 30%?
+
+4. Experience Efficiency (The "Intelligence" Check)
+Measure the ROI of your user experience and the productivity of your marketing funnel.
+
+Metrics: Solow Growth Model (Adapted for UX), Efficiency Index.
+
+Business Questions: * How "intelligent" is our funnel at converting effort into value?
+
+Am I wasting resources or am I spending them smartly?
+
+5. Incrementality & Attribution (The "Game Changer" Check)
+Calculate the true marginal impact of every experiment or funnel step.
+
+Metrics: Marginal Contribution (Shapley Value), CR Lift.
+
+Business Questions: * Which specific experiment was a "game changer"?
+
+How important is a specific step in the user funnel for the final success?
+
+🚀 How to Use These Templates
+Define your Dimension: (e.g., campaign_id, region, or user_id).
+
+Define your Metric: (e.g., sessions, revenue, or donations).
+
+Modular Logic: Each SQL file is designed so you only update the top section, and the statistical math updates automatically at the bottom.
