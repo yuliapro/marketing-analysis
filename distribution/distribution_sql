@@ -1,0 +1,61 @@
+WITH cte1 AS
+   (
+   SELECT
+    donations.assignment_id
+   ,assignments.region
+   ,donations.amount
+   FROM donations
+   JOIN assignments ON assignments.assignment_id = donations.assignment_id
+   )
+,mediat_stats AS
+   (SELECT
+       region
+       ,COUNT(amount) as donations_count
+       ,ROUND(AVG(amount),2)  AS avg_donation
+       ,ROUND(SUM(amount),2)  AS total_donation
+       ,PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY amount) AS median_donation
+       ,ROUND(STDDEV(amount),2) AS st_desv_donation
+       ,ROUND(STDDEV(amount)/AVG(amount),2)  AS CV_donation
+   from cte1
+   GROUP BY region )
+,final_stats AS
+   (SELECT
+       mediat_stats.region
+       ,cte1.amount
+       ,mediat_stats.total_donation
+       ,mediat_stats.avg_donation
+       ,mediat_stats.median_donation
+       ,mediat_stats.st_desv_donation
+       ,mediat_stats.CV_donation
+       ,SUM(cte1.amount) OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC )
+   AS Running_total
+       ,SUM(ROUND(cte1.amount/mediat_stats.total_donation*100,2)) OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC ) AS Running_perc
+       ,ROW_NUMBER () OVER(PARTITION BY mediat_stats.region ORDER BY cte1.amount DESC) AS rank
+       ,PERCENT_RANK() OVER (PARTITION BY mediat_stats.region ORDER BY cte1.amount desc) AS perc_rank
+       ,(cte1.amount - mediat_stats.avg_donation) / mediat_stats.st_desv_donation AS z_score
+   ,ROUND(
+   SUM(POWER(cte1.amount - mediat_stats.avg_donation, 3))
+   OVER(PARTITION BY mediat_stats.region) -- Fundamental para separar por región
+   /
+   ((mediat_stats.donations_count - 1) * POWER(mediat_stats.st_desv_donation, 3))
+, 2)  AS skewness
+   
+   FROM mediat_stats  
+   JOIN cte1 ON cte1.region= mediat_stats.region)
+SELECT
+   region
+   ,total_donation
+   ,avg_donation
+   ,median_donation
+   ,st_desv_donation
+   ,CV_donation
+   ,Running_perc
+   ,perc_rank
+   ,z_score
+   ,skewness
+   , (3*(avg_donation-median_donation))
+       /st_desv_donation AS skewness_2
+FROM final_stats
+WHERE perc_rank<0.21
+ORDER BY perc_rank DESC
+LIMIT 4
