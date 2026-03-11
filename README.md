@@ -12,7 +12,7 @@ Business Questions:
 - Resource Allocation: Is the "input" (value/effort) spread equally, or is it concentrated in a small group?
  * * *  Metrics: Distribution graph, Pearson & Fisher Skewness, Gini Coefficient, Running Percentage, Percent Rank * * *
 
-2. The "Consistency" Check
+2. The "Consistency" Check      
 ===Analyze how varied or uniform your user journeys actually are.===
 Business Questions:
 - Similar or Diverse? Is the user experience consistent across the board, or is it highly diverse?
@@ -20,7 +20,7 @@ Business Questions:
  * * *  Metrics:Variance, Standard Deviation,CV * * *
 
 
-3. The "Bot & VIP" Check
+3. The "Bot & VIP" Check      
 ===Identify and group users based on their specific behavior to optimize targeting===
 Business Questions:
 - Unusual Behavior: Which users show irregular or outlier behavior compared to the rest?
