@@ -15,6 +15,8 @@ Business Questions:
   
  * * *  Metrics: Distribution graph, Pearson & Fisher Skewness, Gini Coefficient, Running Percentage, Percent Rank * * *
 
+
+
 2. The "Consistency" Check
        
 ===Analyze how varied or uniform your user journeys actually are.===
@@ -24,6 +26,8 @@ Business Questions:
 - Deviation from the Norm: How much does each individual user experience differ from the "average" or "normal" behavior?
   
  * * *  Metrics:Variance, Standard Deviation,CV * * *
+
+
 
 
 3. The "Bot & VIP" Check
@@ -37,6 +41,8 @@ Business Questions:
   
  * * *  Metrics: Categorization, Z-Score, Min-Max Normalization * * *
 
+
+
 4. The "Success Formula"
    
 ===Create a single score from multiple variables to rank users and identify dependencies===
@@ -48,8 +54,10 @@ Business Questions:
   
  * * * Metrics: Binary Classification, Scoring * * *
 
+
+
   
-4. The "Intelligence" Check
+5. The "Intelligence" Check
    
 === Measure the productivity of your marketing funnel and the ROI of your user experience===
 
@@ -61,7 +69,9 @@ Business Questions:
  * * * Metrics: Solow Growth Model, Efficiency * * *
 
 
-5. The "Game Changer" Check
+
+
+6. The "Game Changer" Check
    
 ===Calculate the true marginal impact of every experiment or funnel step===
 
