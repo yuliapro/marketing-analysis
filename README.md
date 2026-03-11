@@ -53,7 +53,7 @@ Business Questions:
 - Value Identification: Is this a high-value user, or are we over-investing in a low-value segment?
 - Resource Optimization: Can I earn more with the same resources? Am I wasting effort, or am I spending it intelligently?
   
-Metrics: * * * Solow Growth Model, Efficiency * * *
+ * * * Metrics: Solow Growth Model, Efficiency * * *
 
 
 5. The "Game Changer" Check
@@ -64,7 +64,7 @@ Business Questions:
 - The "Game Changer": Was this test a significant driver of change, or just a minor improvement?
 - Funnel Importance: How much weight does this specific step carry in the overall user journey toward success?
   
-Metrics: * * * Shapley Value (Marginal Contribution analysis) * * *
+ * * * Metrics: Shapley Value (Marginal Contribution analysis) * * *
 
 ======================================================================================================================================
 
