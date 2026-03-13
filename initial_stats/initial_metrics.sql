@@ -17,7 +17,7 @@ WITH base_data AS (
     WHERE funnel_type='general'
 ),
 grouped_metrics AS (
-    -- Step 2: Group and calculate Gini y Fisher
+    -- Step 2: Group and calculate Gini y cubed and square differences
    SELECT 
         funnel_category,
         COUNT(user_id) AS total_users,
@@ -38,7 +38,7 @@ grouped_metrics AS (
     FROM base_data
     GROUP BY funnel_category
 )
--- Step 3: final result + Efficiency, Pearson. Fosjer y CV
+-- Step 3: final result + Pearson, Fisher coef. and CV
 SELECT TOP 10
     funnel_category,
     total_users AS count,
