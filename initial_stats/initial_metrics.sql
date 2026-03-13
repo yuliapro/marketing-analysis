@@ -36,7 +36,7 @@ grouped_metrics AS (
     FROM base_data
     GROUP BY funnel_category
 )
--- Step 3: final result + Efficiency, Pearson y CV
+-- Step 3: final result + Efficiency, Pearson. Fosjer y CV
 SELECT TOP 10
     funnel_category,
     total_users AS count,
