@@ -1,4 +1,6 @@
-    --CHOSE KEY METRIC AND DIMENTION YOU WOULD LIKE TO SEE DATA 
+    -- WORKING DATA TABLE SHOULD HAVE AT LEAST user_id, dimention, metric COLUMNS.
+    -- CHOOSE KEY METRIC AND DIMENTION YOU WOULD LIKE TO SEE DATA 
+    -- EXAMPLE Table:funnel_category, user_id, duration_seconds
     -- key_metric = duration_seconds
   	-- dimention = funnel_category
 WITH base_data AS (
