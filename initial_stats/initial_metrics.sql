@@ -4,7 +4,7 @@
     -- key_metric = duration_seconds
   	-- dimention = funnel_category
 WITH base_data AS (
-    -- Step 1: Calculate metrics (Mediana, STDEV, VAR..) no grouping 
+    -- Step 1: Calculate metrics (Mediana, STDEV, VAR, ROW_NUM) per user
     SELECT 
         funnel_category, 
         duration_seconds,
@@ -17,7 +17,7 @@ WITH base_data AS (
     WHERE funnel_type='general'
 ),
 grouped_metrics AS (
-    -- Step 2: Group and calculate Gini y cubed and square differences
+    -- Step 2: Group and calculate AVG, Gini y cubed and square differences
    SELECT 
         funnel_category,
         COUNT(user_id) AS total_users,
