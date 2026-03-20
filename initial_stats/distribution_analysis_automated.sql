@@ -1,16 +1,20 @@
 /*
-    VARIABLE DISTRIBUTION ANALYSIS (Dynamic T-SQL)
-    This script calculates statistical distribution metrics (Median, STDEV, VAR, Gini, Pearson, Fisher)
-    for a chosen Dimension and Metric.
+    VARIABLE DISTRIBUTION ANALYSIS (Dynamic T-SQL) - 3 FILTER VERSION
+    This script calculates statistical distribution metrics for a chosen Dimension and Metric.
     
     INSTRUCTIONS:
-    Set your variables once at the top, then run the entire script.
+    Set your variables once at the top. 
+    Filters are combined with AND. Use '1=1' if you want to skip a filter.
 */
 
 DECLARE @Dimension     NVARCHAR(128) = 'experiment_name';  -- Column to group by
 DECLARE @Metric        NVARCHAR(128) = 'duration_seconds'; -- Metric to analyze
 DECLARE @TableName     NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
-DECLARE @Filter        NVARCHAR(MAX) = 'experiment_group = ''test'''; -- Filter condition
+
+-- FILTER VARIABLES
+DECLARE @Filter1       NVARCHAR(MAX) = 'experiment_name = ''exp_4''';
+DECLARE @Filter2       NVARCHAR(MAX) = 'experiment_group = ''test''';
+DECLARE @Filter3       NVARCHAR(MAX) = 'z_segmentation <> ''outlier Extreme'''; -- Add third condition here
 
 -------------------------------------------------------------------------------
 -- DYNAMIC EXECUTION ENGINE
@@ -29,7 +33,10 @@ WITH base_data AS (
         VAR(' + @Metric + ' ) OVER (PARTITION BY ' + @Dimension + ') AS var_win,
         ROW_NUMBER() OVER (PARTITION BY ' + @Dimension + ' ORDER BY ' + @Metric + ') AS row_num
     FROM ' + @TableName + '
-    WHERE ' + ISNULL(@Filter, '1=1') + '
+    -- Combining filters with AND
+    WHERE (' + ISNULL(@Filter1, '1=1') + ') 
+      AND (' + ISNULL(@Filter2, '1=1') + ')
+      AND (' + ISNULL(@Filter3, '1=1') + ')
 ),
 grouped_metrics AS (
     -- Step 2: Group and calculate AVG, Gini, cubed and square differences
@@ -63,9 +70,9 @@ SELECT TOP 10
     ROUND(st_dev, 2) AS [st_dev],
     ROUND(variance, 2) AS [var],
     -- Pearson Skewness: (3 * (Mean - Median)) / StdDev
-    ROUND((3 * (avg_val - median_val)) / NULLIF(st_dev, 0), 2) AS dist_skewness_pearson,
+    ROUND((3 * (avg_val - median_val)) / NULLIF(st_dev, 0), 2) AS dist_pearson,
     -- Fisher Kurtosis (simplified): sum(x^3) / ((n-1) * s^3)
-    ROUND(sum_x3 / NULLIF((total_users - 1) * POWER(st_dev, 3), 0), 2) AS dist_kurtosis_fisher,
+    ROUND(sum_x3 / NULLIF((total_users - 1) * POWER(st_dev, 3), 0), 2) AS dist_fisher,
     ROUND(gini_coef, 2) AS gini_coef,
     ROUND(st_dev * 100.0 / NULLIF(avg_val, 0), 2) AS CV_percent
 FROM grouped_metrics
