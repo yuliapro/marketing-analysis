@@ -7,14 +7,14 @@
     Filters are combined with AND. Use '1=1' if you want to skip a filter.
 */
 
-DECLARE @Dimension     NVARCHAR(128) = 'experiment_name';  -- Column to group by
+DECLARE @Dimension     NVARCHAR(128) = 'funnel_category';  -- Column to group by
 DECLARE @Metric        NVARCHAR(128) = 'duration_seconds'; -- Metric to analyze
 DECLARE @TableName     NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 
 -- FILTER VARIABLES
-DECLARE @Filter1       NVARCHAR(MAX) = 'experiment_name = ''exp_4''';
-DECLARE @Filter2       NVARCHAR(MAX) = 'experiment_group = ''test''';
-DECLARE @Filter3       NVARCHAR(MAX) = 'z_segmentation <> ''outlier Extreme'''; -- Add third condition here
+DECLARE @Filter1       NVARCHAR(MAX) = 'funnel_category = ''activity''';
+DECLARE @Filter2       NVARCHAR(MAX) = 'funnel_type = ''general''';
+DECLARE @Filter3       NVARCHAR(MAX) = '1=1'; -- Add third condition here
 
 -------------------------------------------------------------------------------
 -- DYNAMIC EXECUTION ENGINE
