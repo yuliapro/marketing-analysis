@@ -44,6 +44,8 @@ Business Questions:
 CLICK HERE TO CREATE YOUR FUNNEL COMPASS:
 https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
+
+
 4. The "Success Formula"
    
 ===Create a single score from multiple variables to rank users and identify dependencies===
