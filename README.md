@@ -44,7 +44,9 @@ Business Questions:
 CLICK HERE TO CREATE YOUR FUNNEL COMPASS:
 https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
-
+===
+===
+===
 
 4. The "Success Formula"
    
