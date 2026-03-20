@@ -1,58 +1,43 @@
-/* TEMPLATE: Regional Outlier & Pareto Analysis
-Purpose: Identify top contributors (Top 20%) and measure distribution health (Skewness/Z-Score).
-*/
+-- ===========================================================================
+-- DISTRIBUTION ANALYSIS FOR GRAPHING (Dynamic T-SQL)
+-- ===========================================================================
+--
+-- HOW TO USE THIS SCRIPT:
+-- ---------------------------------------------------------------------------
+-- 1. KEY METRIC: Set @KeyMetric to the column name for the X-axis.
+-- 2. CAP: Set @UserCap to the maximum number of users per data point.
+-- 3. FILTERS: Add your conditions (use doubled-up single quotes for strings).
+-- 4. TABLE: Ensure @TableName points to your data source.
+-- ---------------------------------------------------------------------------
 
-WITH raw_data AS (
-    -- Step 1: Join and define your dimension and metric
-    SELECT
-        a.region AS group_id,
-        CAST(d.amount AS FLOAT) AS val
-    FROM donations d
-    JOIN assignments a ON a.assignment_id = d.assignment_id
-),
+-- [USER INPUT SECTION]
+DECLARE @KeyMetric  NVARCHAR(128) = 'duration_seconds'; -- X-Axis Metric
+DECLARE @UserCap    INT           = 8000;               -- Y-Axis Cap (for outliers)
+DECLARE @TableName  NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 
-stats_base AS (
-    -- Step 2: Calculate basic stats using Window Functions (Avoids the Join-Back)
-    SELECT 
-        *,
-        COUNT(*) OVER(PARTITION BY group_id) AS n_count,
-        SUM(val) OVER(PARTITION BY group_id) AS total_val,
-        AVG(val) OVER(PARTITION BY group_id) AS avg_val,
-        STDDEV(val) OVER(PARTITION BY group_id) AS stdev_val
-    FROM raw_data
-),
+-- [FILTER CONFIGURATION] - Combined with AND logic
+DECLARE @Filter1    NVARCHAR(MAX) = 'experiment_name = ''exp_4'''; -- Example filter
+DECLARE @Filter2    NVARCHAR(MAX) = 'experiment_group = ''test''';  -- Example filter
+DECLARE @Filter3    NVARCHAR(MAX) = '1=1';                        -- Default: No filter
 
-metrics_calc AS (
-    -- Step 3: Advanced Stats (Running Totals, Z-Score, Skewness)
-    SELECT
-        group_id,
-        val,
-        total_val,
-        avg_val,
-        stdev_val,
-        -- Coefficient of Variation (CV)
-        ROUND(stdev_val / NULLIF(avg_val, 0), 2) AS cv_ratio,
-        -- Running Percentage (Pareto Logic)
-        SUM(val) OVER(PARTITION BY group_id ORDER BY val DESC) / NULLIF(total_val, 0) AS running_perc,
-        -- Relative Rank (0 to 1)
-        PERCENT_RANK() OVER(PARTITION BY group_id ORDER BY val DESC) AS p_rank,
-        -- Z-Score (Outlier Detection)
-        (val - avg_val) / NULLIF(stdev_val, 0) AS z_score,
-        -- Skewness (Fisher’s)
-        SUM(POWER(val - avg_val, 3)) OVER(PARTITION BY group_id) 
-            / (NULLIF((n_count - 1) * POWER(stdev_val, 3), 0)) AS skewness_val
-    FROM stats_base
-)
+-------------------------------------------------------------------------------
+-- [CORE ENGINE] - Do not modify below this line
+-------------------------------------------------------------------------------
+DECLARE @SQL NVARCHAR(MAX);
 
--- Step 4: Final Filter & Reporting
-SELECT
-    group_id,
-    ROUND(total_val, 2) AS total,
-    ROUND(avg_val, 2) AS average,
-    ROUND(cv_ratio, 2) AS volatility_index,
-    ROUND(running_perc * 100, 2) AS pct_of_total_revenue,
-    ROUND(z_score, 2) AS outlier_score,
-    ROUND(skewness_val, 2) AS skewness
-FROM metrics_calc
-WHERE p_rank <= 0.20  -- Focusing on the Top 20% (Pareto Principle)
-ORDER BY group_id, val DESC;
+SET @SQL = N'
+SELECT 
+    ' + @KeyMetric + ' AS metric_value,
+    CASE 
+        WHEN COUNT(user_id) > @Cap THEN @Cap 
+        ELSE COUNT(user_id) 
+    END AS user_count
+FROM ' + @TableName + '
+WHERE (' + ISNULL(@Filter1, '1=1') + ')
+  AND (' + ISNULL(@Filter2, '1=1') + ')
+  AND (' + ISNULL(@Filter3, '1=1') + ')
+GROUP BY ' + @KeyMetric + '
+ORDER BY ' + @KeyMetric + ' ASC;
+';
+
+EXEC sp_executesql @SQL, N'@Cap INT', @Cap = @UserCap;
