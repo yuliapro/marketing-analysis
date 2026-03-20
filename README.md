@@ -46,7 +46,7 @@ https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
 ===
 ===
-===
+
 
 4. The "Success Formula"
    
