@@ -3,7 +3,7 @@
 This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and user behavior.
 
 1. The "Norm" Check
-   
+   https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 ===Understand what a "typical" journey looks like and identify if your success is driven by a broad base or a few heavy users===
 
 Business Questions: 
@@ -18,7 +18,7 @@ Business Questions:
 
 
 2. The "Consistency" Check
-       
+       https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 ===Analyze how varied or uniform your user journeys actually are.===
 
 Business Questions:
@@ -31,7 +31,7 @@ Business Questions:
 
 
 3. The "Bot & VIP" Check
-       
+       https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 ===Identify and group users based on their specific behavior to optimize targeting===
 
 Business Questions:
