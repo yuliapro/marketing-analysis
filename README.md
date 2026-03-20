@@ -41,7 +41,7 @@ Business Questions:
   
  * * *  Metrics: Categorization, Z-Score, Min-Max Normalization * * *
 <img width="1100" height="718" alt="the_funnel_compass" src="https://github.com/user-attachments/assets/ca0c2433-4dbe-452d-9abb-6d3ce6bf680d" />
-
+CLICK HERE TO CREATE YOUR FUNNEL COMPASS:
 https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
 4. The "Success Formula"
