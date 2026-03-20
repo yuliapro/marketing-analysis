@@ -41,6 +41,7 @@ Business Questions:
   
  * * *  Metrics: Categorization, Z-Score, Min-Max Normalization * * *
 
+<img width="1100" height="708" alt="Screenshot 2026-03-20 at 12 15 34" src="https://github.com/user-attachments/assets/467b8c57-1987-4456-b7e0-ce5c7ed4e5a9" />
 
 
 4. The "Success Formula"
