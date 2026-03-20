@@ -16,8 +16,8 @@ DECLARE @UserCap    INT           = 8000;               -- Y-Axis Cap (for outli
 DECLARE @TableName  NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 
 -- [FILTER CONFIGURATION] - Combined with AND logic
-DECLARE @Filter1    NVARCHAR(MAX) = 'experiment_name = ''exp_4'''; -- Example filter
-DECLARE @Filter2    NVARCHAR(MAX) = 'experiment_group = ''test''';  -- Example filter
+DECLARE @Filter1    NVARCHAR(MAX) = 'funnel_category = ''activity'''; -- Example filter
+DECLARE @Filter2    NVARCHAR(MAX) = 'funnel_type = ''general''';  -- Example filter
 DECLARE @Filter3    NVARCHAR(MAX) = '1=1';                        -- Default: No filter
 
 -------------------------------------------------------------------------------
