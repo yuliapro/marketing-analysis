@@ -17,13 +17,14 @@ raw_data AS (
         experiment_name,
         -- Success criteria: 1 if converted, 0 if not
         CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END AS is_success
-    FROM Datawarehouse.gold.vw_user_zscore_segmentation
+    FROM Datawarehouse.gold.user_zscore_segmentation
 ),
 
 -- Step 2: Calculate CR for Baseline (Users with no experiment or not in our list)
 baseline_stats AS (
     SELECT 
         funnel_category,
+        COUNT(*) AS reach_baseline,
         AVG(is_success) * 100.0 AS cr_baseline
     FROM raw_data
     WHERE experiment_name IS NULL 
@@ -36,6 +37,7 @@ experiment_stats AS (
     SELECT 
         funnel_category,
         experiment_name,
+        COUNT(*) AS reach_variant,
         AVG(is_success) * 100.0 AS cr_variant
     FROM raw_data
     WHERE experiment_name IN (SELECT exp_id FROM active_exps)
@@ -48,6 +50,7 @@ final_comparison AS (
         e.funnel_category,
         e.experiment_name,
         b.cr_baseline,
+        e.reach_variant,
         e.cr_variant,
         (e.cr_variant - b.cr_baseline) AS absolute_lift,
         (e.cr_variant - b.cr_baseline) / NULLIF(b.cr_baseline, 0) AS relative_lift_perc
