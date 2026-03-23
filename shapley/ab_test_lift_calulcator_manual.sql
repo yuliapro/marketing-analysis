@@ -1,56 +1,66 @@
-/* PASO 0: Define expriments to compare */
-DECLARE @Exp_A VARCHAR(50) = 'exp_5';
-DECLARE @Exp_B VARCHAR(50) = 'exp_4';
-DECLARE @Exp_C VARCHAR(50) = 'exp_0';
+/* TEMPLATE: Experiment Marginal Impact (Shapley-style)
+Use this to see how much each experiment improves Conversion Rate compared to a Baseline.
+*/
 
-WITH base_rates AS (
-   SELECT
-       funnel_category,
-       -- BASELINE: Usuarios que NO vieron ninguno de los dos experimentos
-       AVG(CASE WHEN experiment_name NOT IN (@Exp_A, @Exp_B) OR experiment_name IS NULL
-                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_control,
-      
-       -- IMPACTO EXP A: Usuarios que vieron el primer experimento
-       AVG(CASE WHEN experiment_name = @Exp_A
-                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_a
-       -- IMPACTO EXP B: Usuarios que vieron el segundo experimento
-       ,AVG(CASE WHEN experiment_name = @Exp_B
-                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_b
-               
-       -- IMPACTO EXP C: Usuarios que vieron el segundo experimento
-       ,AVG(CASE WHEN experiment_name = @Exp_C
-                THEN (CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END) END) * 100.0 AS cr_exp_c               
-               
-   FROM Datawarehouse.gold.user_zscore_segmentation
-   GROUP BY funnel_category
+-- Step 0: Define your target experiments here
+WITH active_exps AS (
+    SELECT 'exp_0' AS exp_id UNION ALL
+    SELECT 'exp_1' UNION ALL
+    SELECT 'exp_4' UNION ALL
+    SELECT 'exp_5'
+),
+
+-- Step 1: Normalize raw data
+raw_data AS (
+    SELECT 
+        funnel_category,
+        experiment_name,
+        -- Success criteria: 1 if converted, 0 if not
+        CASE WHEN max_level_reached = 5 THEN 1.0 ELSE 0.0 END AS is_success
+    FROM Datawarehouse.gold.user_zscore_segmentation
+),
+
+-- Step 2: Calculate CR for Baseline (Users with no experiment or not in our list)
+baseline_stats AS (
+    SELECT 
+        funnel_category,
+        COUNT(*) AS reach_baseline,
+        AVG(is_success) * 100.0 AS cr_baseline
+    FROM raw_data
+    WHERE experiment_name IS NULL 
+       OR experiment_name NOT IN (SELECT exp_id FROM active_exps)
+    GROUP BY funnel_category
+),
+
+-- Step 3: Calculate CR for each Experiment individually
+experiment_stats AS (
+    SELECT 
+        funnel_category,
+        experiment_name,
+        COUNT(*) AS reach_variant,
+        AVG(is_success) * 100.0 AS cr_variant
+    FROM raw_data
+    WHERE experiment_name IN (SELECT exp_id FROM active_exps)
+    GROUP BY funnel_category, experiment_name
+),
+
+-- Step 4: Final Calculation (The "Shapley" Lift)
+final_comparison AS (
+    SELECT 
+        e.funnel_category,
+        e.experiment_name,
+        b.cr_baseline,
+        e.reach_variant,
+        e.cr_variant,
+        (e.cr_variant - b.cr_baseline) AS absolute_lift,
+        (e.cr_variant - b.cr_baseline) / NULLIF(b.cr_baseline, 0) AS relative_lift_perc
+    FROM experiment_stats e
+    JOIN baseline_stats b ON e.funnel_category = b.funnel_category
 )
-SELECT
-   funnel_category,
-   ROUND(cr_control, 2) AS cr_baseline
-  
-   -- Métricas para Experimento A (exp_5)
- --  @Exp_A AS experiment_a,
- --  ROUND(cr_exp_a, 2) AS cr_a,
---   ROUND(cr_exp_a - cr_control, 2) AS a
- --  ,ROUND((cr_exp_a - cr_control)/cr_control,2) AS a_perc
-   ,ROUND(AVG((cr_exp_a - cr_control)/cr_control)  OVER () ,2) AS a_perc_avg
-  
-   -- Métricas para Experimento B (exp_4)
- --  ,@Exp_B AS experiment_b,
---   ROUND(cr_exp_b, 2) AS cr_b,
---   ROUND(cr_exp_b - cr_control, 2) AS b
---	,ROUND((cr_exp_b - cr_control)/cr_control,2) AS b_perc
-   ,ROUND(AVG((cr_exp_b - cr_control)/cr_control)  OVER () ,2) AS b_perc_avg
-   
-   -- Métricas para Experimento C (exp_0)
- --  ,@Exp_C AS experiment_c,
- --  ROUND(cr_exp_c, 2) AS cr_c,
- --  ROUND(cr_exp_c - cr_control, 2) AS c
- --  ,ROUND((cr_exp_c - cr_control)/cr_control, 2) AS c_perc
-   ,ROUND(AVG((cr_exp_c - cr_control)/cr_control) OVER (), 2) AS c_perc_avg 
- 
-FROM base_rates
-WHERE cr_control IS NOT NULL;
 
-
-
+SELECT 
+    *,
+    -- Global average for the experiment across all categories
+    AVG(relative_lift_perc) OVER(PARTITION BY experiment_name) AS global_avg_lift
+FROM final_comparison
+ORDER BY funnel_category, absolute_lift DESC;
