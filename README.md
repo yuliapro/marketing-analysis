@@ -40,7 +40,8 @@ Business Questions:
 -  Anomaly Detection: Are there bot users or "bad actors" mixed in with our real traffic?
   
  * * *  Metrics: Categorization, Z-Score, Min-Max Normalization * * *
-<img width="1100" height="718" alt="the_funnel_compass" src="https://github.com/user-attachments/assets/ca0c2433-4dbe-452d-9abb-6d3ce6bf680d" />
+       <img width="1092" height="719" alt="Screenshot 2026-03-23 at 17 04 23" src="https://github.com/user-attachments/assets/5b486a18-1e37-4c1b-b09f-c7ee09b5895a" />
+
 CLICK HERE TO CREATE YOUR FUNNEL COMPASS:
 https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
@@ -61,7 +62,6 @@ Business Questions:
 
 
 
-  
 5. The "Intelligence" Check
    
 === Measure the productivity of your marketing funnel and the ROI of your user experience===
@@ -86,7 +86,11 @@ Business Questions:
 - Funnel Importance: How much weight does this specific step carry in the overall user journey toward success?
   
  * * * Metrics: Shapley Value (Marginal Contribution analysis) * * *
+       
+  <img width="1056" height="682" alt="Screenshot 2026-03-23 at 17 05 58" src="https://github.com/user-attachments/assets/d7876f54-f9cc-422b-9ccd-8b0733bf4a8c" />
 
+CLICK HERE TO CHECK YOUR EXPERIMENT AT LIFT_SEGMENT_ANALYZER:
+https://github.com/yuliapro/marketing-analysis/tree/main/shapley
 ======================================================================================================================================
 
 🚀 How to Use These Templates
