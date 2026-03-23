@@ -90,7 +90,7 @@ Business Questions:
   <img width="1056" height="682" alt="Screenshot 2026-03-23 at 17 05 58" src="https://github.com/user-attachments/assets/d7876f54-f9cc-422b-9ccd-8b0733bf4a8c" />
 
 CLICK HERE TO CHECK YOUR EXPERIMENT AT LIFT_SEGMENT_ANALYZER:
-https://github.com/yuliapro/marketing-analysis/tree/main/shapley
+https://github.com/yuliapro/marketing-analysis/tree/main/exp_lift_analyzer
 
 ======================================================================================================================================
 
