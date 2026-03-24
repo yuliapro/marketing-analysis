@@ -52,17 +52,35 @@ median_lookup AS (
 )
 
 --- Final Output ---
+,final_output AS	(
+	SELECT 
+	    s.grouping_id,
+	    s.total_count,
+	    SUM(s.total_count) OVER(ORDER BY s.grouping_id DESC) AS users,
+	    s.avg_value,
+	    m.median_value,
+	    ROUND(s.std_dev,2) AS std_dev,
+	    -- Efficiency Ratio restult = intenegencia * sqrt(intrastruct)*sqrt(resources)
+	   
+	    -- Pearson’s Skewness: (Mean - Median) / StdDev
+	    ROUND(CASE WHEN s.std_dev = 0 THEN 0 ELSE (3 * (s.avg_value - m.median_value)) / s.std_dev END,2) AS skewness_pearson,
+	    -- Fisher's Skewness: Adjusted for sample size
+	    ROUND(CASE WHEN s.std_dev = 0 THEN 0 ELSE (s.sum_diff_cb / (s.total_count * POWER(s.std_dev, 3))) END,2) AS skewness_fisher
+	FROM summary_stats s
+	JOIN median_lookup m ON s.grouping_id = m.grouping_id
+	)
+
 SELECT 
-    s.grouping_id,
-    s.total_count,
-    s.avg_value,
-    m.median_value,
-    s.std_dev,
-    -- Efficiency Ratio: Custom marketing metric next/sqt avg * current
-    (LEAD(s.total_count) OVER (ORDER BY s.grouping_id) / NULLIF(POWER(s.avg_value, 0.5) * POWER(s.total_count, 0.5), 0)) AS efficiency_index,
-    -- Pearson’s Skewness: (Mean - Median) / StdDev
-    CASE WHEN s.std_dev = 0 THEN 0 ELSE (3 * (s.avg_value - m.median_value)) / s.std_dev END AS skewness_pearson,
-    -- Fisher's Skewness: Adjusted for sample size
-    CASE WHEN s.std_dev = 0 THEN 0 ELSE (s.sum_diff_cb / (s.total_count * POWER(s.std_dev, 3))) END AS skewness_fisher
-FROM summary_stats s
-JOIN median_lookup m ON s.grouping_id = m.grouping_id;
+	grouping_id AS funnel_level
+	,users AS users_initialized
+	,LEAD(users) OVER (ORDER BY grouping_id) AS users_success
+	,ROUND(LEAD(users) OVER (ORDER BY grouping_id) 
+    	/ (NULLIF(POWER(avg_value, 0.5) * POWER(users, 0.5), 0)),2) AS efficiency_index
+    ,ROUND(LEAD(users) OVER (ORDER BY grouping_id)/users*100.0,2) AS Conv_rate	
+    ,avg_value AS avg_minutes	
+    ,median_value AS median_minutes	
+    ,std_dev AS std_minutes
+    ,skewness_pearson AS pearson_minutes	
+    ,skewness_fisher AS fisher_minutes
+FROM final_output
+;
