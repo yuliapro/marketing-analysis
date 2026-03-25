@@ -74,7 +74,9 @@ Business Questions:
  * * * Metrics: Solow Growth Model, Efficiency * * *
 
 <img width="812" height="594" alt="results_funnel_efficienty_checker" src="https://github.com/user-attachments/assets/23d5c789-1978-4d42-962b-f0c4e39cc420" />
-.
+
+<br/>
+
 CLICK HERE TO CHECK YOUR FUNNEL AT FUNNEL_ANALYZER:
 https://github.com/yuliapro/marketing-analysis/tree/main/funnel_analyzer
 
