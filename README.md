@@ -61,6 +61,8 @@ Business Questions:
  * * * Metrics: Binary Classification, Scoring * * *
 
 
+===
+===
 
 5. The "Intelligence" Check
    
@@ -80,6 +82,8 @@ Business Questions:
 CLICK HERE TO CHECK YOUR FUNNEL AT FUNNEL_ANALYZER:
 https://github.com/yuliapro/marketing-analysis/tree/main/funnel_analyzer
 
+===
+===
 
 6. The "Game Changer" Check
    
