@@ -3,7 +3,7 @@
 -- ===========================================================================
 -- This template runs the Solow Efficiency analysis for multiple categories
 -- and combines them into a single report using UNION ALL.
--- Now includes Average Benchmarks per level across all segments.
+-- Includes Averages, Medians, Skewness, and Level Benchmarks.
 --
 -- HOW TO USE:
 -- ---------------------------------------------------------------------------
@@ -23,7 +23,6 @@
 -- - Efficiency Delta: % change in efficiency compared to the previous step. Shows change of Efficiency between steps.
 -- ===========================================================================
 -- ---------------------------------------------------------------------------
-
 -- [USER INPUT SECTION]
 DECLARE @TableName         NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 DECLARE @LevelCol          NVARCHAR(128) = 'max_level_reached';
@@ -36,7 +35,7 @@ DECLARE @CustomFilter      NVARCHAR(MAX) = '1=1';
 -------------------------------------------------------------------------------
 DECLARE @UnionSQL NVARCHAR(MAX) = '';
 
--- Robust splitting logic to handle expressions with commas (Pure T-SQL)
+-- Robust splitting logic to handle expressions with commas
 DECLARE @pos INT = 1;
 DECLARE @start INT = 1;
 DECLARE @depth INT = 0;
@@ -69,7 +68,6 @@ BEGIN
             ELSE
                 SET @alias = 'category_' + CAST(@dim_idx AS NVARCHAR);
 
-            -- Build the SQL block for this specific category
             IF @UnionSQL <> '' SET @UnionSQL = @UnionSQL + ' UNION ALL ';
             
             SET @UnionSQL = @UnionSQL + '
@@ -92,45 +90,62 @@ DECLARE @FinalSQL NVARCHAR(MAX) = N'
 WITH raw_data AS (
     ' + @UnionSQL + '
 ),
-base_stats AS (
+base_means AS (
     SELECT 
-        segment_type,
-        segment_value,
-        level_id,
-        CAST(COUNT(*) AS FLOAT) AS level_count,
-        CAST(AVG(infra_metric) AS FLOAT) AS avg_infra,
-        CAST(STDEV(infra_metric) AS FLOAT) AS std_infra
+        segment_type, segment_value, level_id,
+        AVG(infra_metric) AS avg_infra,
+        COUNT(*) AS level_count
     FROM raw_data
     GROUP BY segment_type, segment_value, level_id
 ),
-initials_calc AS (
+diffs AS (
     SELECT 
-        *,
-        SUM(level_count) OVER(PARTITION BY segment_type, segment_value ORDER BY level_id DESC) AS initial
-    FROM base_stats
+        r.*,
+        m.avg_infra,
+        m.level_count,
+        r.infra_metric - m.avg_infra AS diff,
+        ROW_NUMBER() OVER(PARTITION BY r.segment_type, r.segment_value, r.level_id ORDER BY r.infra_metric) AS row_num
+    FROM raw_data r
+    JOIN base_means m ON r.segment_type = m.segment_type AND r.segment_value = m.segment_value AND r.level_id = m.level_id
+),
+summary_stats AS (
+    SELECT 
+        segment_type, segment_value, level_id, level_count, avg_infra,
+        POWER(SUM(POWER(diff, 2)) / NULLIF(level_count - 1, 0), 0.5) AS std_infra,
+        SUM(POWER(diff, 3)) AS sum_diff_cb
+    FROM diffs
+    GROUP BY segment_type, segment_value, level_id, level_count, avg_infra
+),
+median_lookup AS (
+    SELECT segment_type, segment_value, level_id, infra_metric AS median_infra
+    FROM diffs
+    WHERE row_num = CEILING(level_count / 2.0)
+),
+funnel_calc AS (
+    SELECT 
+        s.*, m.median_infra,
+        SUM(s.level_count) OVER(PARTITION BY s.segment_type, s.segment_value ORDER BY s.level_id DESC) AS initial
+    FROM summary_stats s
+    JOIN median_lookup m ON s.segment_type = m.segment_type AND s.segment_value = m.segment_value AND s.level_id = m.level_id
 ),
 success_calc AS (
     SELECT 
         *,
         LEAD(initial) OVER(PARTITION BY segment_type, segment_value ORDER BY level_id) AS success
-    FROM initials_calc
+    FROM funnel_calc
 ),
 efficiency_metrics AS (
     SELECT 
         *,
-        -- FORMULA: SOLOW EFFICIENCY = success / (sqrt(initial) * infra)
-        ROUND(success / NULLIF(POWER(initial, 0.5) * avg_infra, 0), 4) AS solow_eff,
-        -- FORMULA: MARGINAL RETURN = success / (initial * infra)
-        ROUND(success / NULLIF(initial * avg_infra, 0), 4) AS marginal_return,
-        -- FORMULA: INFRASTRUCTURE WASTE = (initial - success) * infra
-        ROUND((initial - success) * avg_infra, 2) AS infra_waste
+        ROUND(success / NULLIF(POWER(initial, 0.5) * avg_infra, 0), 4) AS efficiency,
+        ROUND(success / NULLIF(initial * avg_infra, 0), 4) AS return_per_resource,
+        ROUND((initial - success) * avg_infra, 2) AS _waste_per_user
     FROM success_calc
 ),
 delta_calc AS (
     SELECT 
         *,
-        -- FORMULA: EFFICIENCY DELTA
-        ROUND((solow_eff / NULLIF(LAG(solow_eff) OVER (PARTITION BY segment_type, segment_value ORDER BY level_id), 0)) - 1, 4) AS efficiency_delta
+        ROUND((efficiency / NULLIF(LAG(efficiency) OVER (PARTITION BY segment_type, segment_value ORDER BY level_id), 0)) - 1, 4) AS efficiency_delta
     FROM efficiency_metrics
 )
 SELECT 
@@ -140,19 +155,21 @@ SELECT
     initial AS [users initials as resources],
     success AS [users success as result],
     ROUND(avg_infra, 2) AS [infrastructure_avg],
-    
-    solow_eff AS efficiency,
-    marginal_return AS return_per_resource,
-    infra_waste AS _waste_per_user,
+    efficiency,
+    return_per_resource,
+    _waste_per_user,
     efficiency_delta,
 
-    -- Benchmarks: Average values per level across ALL segments
-    ROUND(AVG(solow_eff) OVER(PARTITION BY level_id), 4) AS [avg_efficiency_level],
-    ROUND(AVG(marginal_return) OVER(PARTITION BY level_id), 4) AS [avg_return_per_resource_level],
-    ROUND(AVG(infra_waste) OVER(PARTITION BY level_id), 2) AS [avg_waste_per_user_level],
+    -- Benchmarks
+    ROUND(AVG(efficiency) OVER(PARTITION BY level_id), 4) AS [avg_efficiency_level],
+    ROUND(AVG(return_per_resource) OVER(PARTITION BY level_id), 4) AS [avg_return_per_resource_level],
+    ROUND(AVG(_waste_per_user) OVER(PARTITION BY level_id), 2) AS [avg_waste_per_user_level],
     ROUND(AVG(efficiency_delta) OVER(PARTITION BY level_id), 4) AS [avg_efficiency_delta_level],
 
-    ROUND(std_infra, 2) AS [stdev_infra]
+    -- Detailed Stats
+    ROUND(median_infra, 2) AS [infrastructure_median],
+    ROUND(std_infra, 2) AS [infrastructure_stdev],
+    ROUND(CASE WHEN std_infra = 0 THEN 0 ELSE (sum_diff_cb / (level_count * POWER(std_infra, 3))) END, 2) AS [infrastructure_skewness]
 FROM delta_calc
 ORDER BY segment_type, segment_value, level_id;';
 
