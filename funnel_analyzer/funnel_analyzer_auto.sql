@@ -23,6 +23,7 @@
 -- - Efficiency Delta: % change in efficiency compared to the previous step. Shows change of Efficiency between steps.
 -- ===========================================================================
 -- ---------------------------------------------------------------------------
+--
 -- [USER INPUT SECTION]
 DECLARE @TableName         NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 DECLARE @LevelCol          NVARCHAR(128) = 'max_level_reached';
@@ -147,6 +148,15 @@ delta_calc AS (
         *,
         ROUND((efficiency / NULLIF(LAG(efficiency) OVER (PARTITION BY segment_type, segment_value ORDER BY level_id), 0)) - 1, 4) AS efficiency_delta
     FROM efficiency_metrics
+),
+benchmarks AS (
+    SELECT 
+        *,
+        AVG(efficiency) OVER(PARTITION BY level_id) AS avg_efficiency_level,
+        AVG(return_per_resource) OVER(PARTITION BY level_id) AS avg_return_per_resource_level,
+        AVG(_waste_per_user) OVER(PARTITION BY level_id) AS avg_waste_per_user_level,
+        AVG(efficiency_delta) OVER(PARTITION BY level_id) AS avg_efficiency_delta_level
+    FROM delta_calc
 )
 SELECT 
     segment_type,
@@ -155,22 +165,30 @@ SELECT
     initial AS [users initials as resources],
     success AS [users success as result],
     ROUND(avg_infra, 2) AS [infrastructure_avg],
+    
+    -- Core Metrics
     efficiency,
     return_per_resource,
     _waste_per_user,
     efficiency_delta,
 
     -- Benchmarks
-    ROUND(AVG(efficiency) OVER(PARTITION BY level_id), 4) AS [avg_efficiency_level],
-    ROUND(AVG(return_per_resource) OVER(PARTITION BY level_id), 4) AS [avg_return_per_resource_level],
-    ROUND(AVG(_waste_per_user) OVER(PARTITION BY level_id), 2) AS [avg_waste_per_user_level],
-    ROUND(AVG(efficiency_delta) OVER(PARTITION BY level_id), 4) AS [avg_efficiency_delta_level],
+    ROUND(avg_efficiency_level, 4) AS avg_efficiency_level,
+    ROUND(avg_return_per_resource_level, 4) AS avg_return_per_resource_level,
+    ROUND(avg_waste_per_user_level, 2) AS avg_waste_per_user_level,
+    ROUND(avg_efficiency_delta_level, 4) AS avg_efficiency_delta_level,
+
+    -- Relative Lifts (Metric / Average - 1)
+    ROUND((efficiency / NULLIF(avg_efficiency_level, 0)) - 1, 4) AS lift_efficiency,
+    ROUND((return_per_resource / NULLIF(avg_return_per_resource_level, 0)) - 1, 4) AS lift_return_per_resource,
+    ROUND((_waste_per_user / NULLIF(avg_waste_per_user_level, 0)) - 1, 4) AS lift_waste_per_user,
+    ROUND((efficiency_delta / NULLIF(avg_efficiency_delta_level, 0)) - 1, 4) AS lift_efficiency_delta,
 
     -- Detailed Stats
     ROUND(median_infra, 2) AS [infrastructure_median],
     ROUND(std_infra, 2) AS [infrastructure_stdev],
     ROUND(CASE WHEN std_infra = 0 THEN 0 ELSE (sum_diff_cb / (level_count * POWER(std_infra, 3))) END, 2) AS [infrastructure_skewness]
-FROM delta_calc
+FROM benchmarks
 ORDER BY segment_type, segment_value, level_id;';
 
 PRINT @FinalSQL;
