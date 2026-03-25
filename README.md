@@ -75,7 +75,7 @@ Business Questions:
   
  * * * Metrics: Solow Growth Model, Efficiency * * *
 
-<img width="812" height="594" alt="results_funnel_efficienty_checker" src="https://github.com/user-attachments/assets/23d5c789-1978-4d42-962b-f0c4e39cc420" />
+<img width="786" height="565" alt="Screenshot 2026-03-25 at 17 34 11" src="https://github.com/user-attachments/assets/e2d664d9-2d37-4aee-8e8b-40f76d4808e8" />
 
 <br/>
 
