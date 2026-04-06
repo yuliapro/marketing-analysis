@@ -11,7 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 # ==========================================================
 
 # Define the columns you want to use for prediction (Your Attributes / X)
-ATTRIBUTES = ['cat_weight', 'exp_weight', 'z_score', 'duration_seconds']
+ATTRIBUTES = ['no_exp', 'exp_0', 'exp_1', 'exp_2', 'exp_3', 'exp_4', 'exp_5', 'exp_6', 'exp_7', 'exp_8', 'exp_9']
 
 # Define the logic for your success criteria (Your Success Column / y)
 # Example: Success if they reached level 5
@@ -19,7 +19,7 @@ def success(df):
     return (df['max_level_reached'] == 5).astype(int)
 
 # Database Configuration and SQL File Path
-SQL_FILE_PATH = '/Users/yulia/analytics/success_probab_score.sql'
+SQL_FILE_PATH = '/Users/yulia/analytics/shap_by_exp.sql'
 DB_CONNECTION = (
     "DRIVER={ODBC Driver 17 for SQL Server};"
     "SERVER=localhost,1433;"
@@ -66,10 +66,10 @@ def run_model_and_shap(X, y, output_img='analytics/shapley_importance_results.pn
         # Newer versions often return the positive class values directly
         shap_obj = shap_values
 
-    # Generate Plot
-    plt.figure(figsize=(10, 6))
-    shap.summary_plot(shap_obj, X_sample, show=False, plot_type="bar")
-    plt.title('Attribute Importance (SHAP Values)', fontsize=14)
+    # Generate Plot (Dot/Beeswarm plot shows direction of impact)
+    plt.figure(figsize=(12, 8))
+    shap.summary_plot(shap_obj, X_sample, show=False) 
+    plt.title('Attribute Impact on Success (SHAP Values)', fontsize=14)
     plt.savefig(output_img, bbox_inches='tight')
     plt.close()
 
