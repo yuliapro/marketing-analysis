@@ -1,0 +1,27 @@
+SELECT 
+    user_id, 
+    [date], 
+    funnel_type, 
+    funnel_category, 
+    experiment_group, 
+    max_level_reached, 
+    duration_seconds, 
+    row_num, 
+    diff_cube,  
+    avg_labour_time, 
+    st_dev, 
+    z_score, 
+    z_segmentation,
+    -- Pivot experiment_name into columns (One-Hot Encoding)
+    CASE WHEN experiment_name = 'exp_0' THEN 1 ELSE 0 END AS exp_0,
+    CASE WHEN experiment_name = 'exp_1' THEN 1 ELSE 0 END AS exp_1,
+    CASE WHEN experiment_name = 'exp_2' THEN 1 ELSE 0 END AS exp_2,
+    CASE WHEN experiment_name = 'exp_3' THEN 1 ELSE 0 END AS exp_3,
+    CASE WHEN experiment_name = 'exp_4' THEN 1 ELSE 0 END AS exp_4,
+    CASE WHEN experiment_name = 'exp_5' THEN 1 ELSE 0 END AS exp_5,
+    CASE WHEN experiment_name = 'exp_6' THEN 1 ELSE 0 END AS exp_6,
+    CASE WHEN experiment_name = 'exp_7' THEN 1 ELSE 0 END AS exp_7,
+    CASE WHEN experiment_name = 'exp_8' THEN 1 ELSE 0 END AS exp_8,
+    CASE WHEN experiment_name = 'exp_9' THEN 1 ELSE 0 END AS exp_9,
+    CASE WHEN experiment_name IS NULL OR experiment_name = '' THEN 1 ELSE 0 END AS no_exp
+FROM Datawarehouse.gold.user_zscore_segmentation;
