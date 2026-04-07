@@ -51,14 +51,13 @@ https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
 4. The "Success Formula"
    
-===Create a single score from multiple variables to rank users and identify dependencies===
+===Create a single score from multiple attributes to rank users and identify dependencies===
 
 Business Questions:
-- The Success Formula: How can we combine two different variables (e.g., Value vs. Loyalty) into one "Success Score"?
-- Variable Dependency: How does one variable affect the other when predicting a user's final category?
-- Priority Ranking: If we value "Money" at 70% and "Engagement" at 30%, who are our top-priority users?
+- The Success Formula: What attributes do we have at our "Success Score"?
+- Priority Ranking: How each attributes impact the "Success"?
   
- * * * Metrics: Binary Classification, Scoring * * *
+ * * * Metrics: Random Forest Classification, Scoring, Machine Learning, Shaplay Value * * *
 
 
 ===
