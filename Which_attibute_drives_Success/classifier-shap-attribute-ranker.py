@@ -11,7 +11,9 @@ from sklearn.ensemble import RandomForestClassifier
 # ==========================================================
 
 # Define the columns you want to use for prediction (Your Attributes / X)
-ATTRIBUTES = ['no_exp', 'exp_0', 'exp_1', 'exp_2', 'exp_3', 'exp_4', 'exp_5', 'exp_6', 'exp_7', 'exp_8', 'exp_9']
+# We exclude 'no_exp' so it acts as the baseline (Control Group)
+ATTRIBUTES = ['exp_0', 'exp_1', 'exp_2', 'exp_3', 'exp_4', 'exp_5', 'exp_7', 'exp_8', 'exp_9']
+
 
 # Define the logic for your success criteria (Your Success Column / y)
 # Example: Success if they reached level 5
@@ -67,9 +69,25 @@ def run_model_and_shap(X, y, output_img='analytics/shapley_importance_results.pn
         shap_obj = shap_values
 
     # Generate Plot (Dot/Beeswarm plot shows direction of impact)
-    plt.figure(figsize=(12, 8))
-    shap.summary_plot(shap_obj, X_sample, show=False) 
-    plt.title('Attribute Impact on Success (SHAP Values)', fontsize=14)
+    plt.figure(figsize=(14, 9))
+    shap.summary_plot(shap_obj, X_sample, show=False)
+    
+    # Add custom explanatory text for easier interpretation
+    plt.title('Attribute Impact on Success (SHAP Values)\nHow each experiment influences reaching Level 5', fontsize=16, pad=20)
+    
+    # Adding interpretation guides
+    plt.text(plt.xlim()[0], plt.ylim()[1] + 0.5, '◀ DECREASES Success Probability', 
+             color='blue', fontweight='bold', ha='left', va='center', fontsize=10)
+    plt.text(plt.xlim()[1], plt.ylim()[1] + 0.5, 'INCREASES Success Probability ▶', 
+             color='red', fontweight='bold', ha='right', va='center', fontsize=10)
+    
+    # Color meaning annotation (Using transAxes for stable positioning outside the plot)
+    plt.text(1.25, 0.5, 
+             'COLOR MEANING:\n\n● RED: User IS in\n  this experiment (1)\n\n● BLUE: User is NOT\n  in this experiment (0)', 
+             bbox=dict(facecolor='white', alpha=0.8, edgecolor='gray'),
+             transform=plt.gca().transAxes,
+             ha='left', va='center', fontsize=10)
+
     plt.savefig(output_img, bbox_inches='tight')
     plt.close()
 
