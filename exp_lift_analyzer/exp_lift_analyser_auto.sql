@@ -1,16 +1,16 @@
 -- ===========================================================================
 -- DETAILED CATEGORY BREAKDOWN A/B TEST LIFT
 -- ===========================================================================
--- This script provides a granular breakdown of lift for each experiment variant
+-- This script provides a granular breakdown of lift for each experiment/category
 -- inside every segment of the specified grouping columns.
 --
 -- [USER INPUT SECTION]
 DECLARE @TableName             NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
-DECLARE @ExperimentColumn      NVARCHAR(128) = 'experiment_name';
-DECLARE @GroupByColumns        NVARCHAR(MAX) = 'funnel_category, z_segmentation, CONVERT(VARCHAR(7), date, 120)'; 
+DECLARE @ExperimentColumn      NVARCHAR(128) = 'z_segmentation';
+DECLARE @GroupByColumns        NVARCHAR(MAX) = 'CONVERT(VARCHAR(7), date, 120)'; --'''OVERALL'' AS Total'   'funnel_category, CONVERT(VARCHAR(7), date, 120)'
 DECLARE @TotalUsersCol         NVARCHAR(128) = '1'; 
 DECLARE @ConvertedUsersCol     NVARCHAR(128) = 'CASE WHEN max_level_reached = 5 THEN 1 ELSE 0 END'; 
-DECLARE @BaselineValue         NVARCHAR(128) = 'NULL'; 
+DECLARE @BaselineValue         NVARCHAR(128) = 'avg'; 
 DECLARE @ExperimentsToInclude  NVARCHAR(MAX) = 'ALL'; 
 
 -------------------------------------------------------------------------------
