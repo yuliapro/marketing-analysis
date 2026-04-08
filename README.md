@@ -62,6 +62,8 @@ Business Questions:
 <img width="1004" height="1014" alt="attributes_analyzer_img" src="https://github.com/user-attachments/assets/9616f10c-23a8-4545-914d-3ce729d17993" />
  ANALYZE YOUR ATTRIBUTES AUTOMATICALLY here https://github.com/yuliapro/marketing-analysis/blob/main/Which_attibute_drives_Success/attributes_analyzer.py
 <br/>
+
+
 ===
 ===
 
