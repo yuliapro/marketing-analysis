@@ -12,12 +12,11 @@ from sklearn.ensemble import RandomForestClassifier
 
 # List of attributes to analyze (can be TEXT or NUMERIC)
 ATTRIBUTES = [
-    'funnel_type', 
     'funnel_category', 
     'experiment_name', 
-    'experiment_group', 
-    'z_segmentation', 
-    'duration_seconds'
+    'z_segmentation'
+   
+    
 ]
 
 # Success Criteria: Reaching Level 5
