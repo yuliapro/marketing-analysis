@@ -1,15 +1,17 @@
 -- ===========================================================================
--- DETAILED CATEGORY BREAKDOWN A/B TEST LIFT
+-- DETAILED CATEGORY BREAKDOWN BY A/B_TEST/CATEGORY/DIMENTION LIFT
 -- ===========================================================================
--- This script provides a granular breakdown of lift for each experiment/category
+-- ===========================================================================
+-- This script provides a granular breakdown of lift for each experiment/category/dimention
 -- inside every segment of the specified grouping columns.
---
 -- [USER INPUT SECTION]
 DECLARE @TableName             NVARCHAR(256) = 'Datawarehouse.gold.user_zscore_segmentation';
 DECLARE @ExperimentColumn      NVARCHAR(128) = 'z_segmentation';
-DECLARE @GroupByColumns        NVARCHAR(MAX) = 'CONVERT(VARCHAR(7), date, 120)'; --'''OVERALL'' AS Total'   'funnel_category, CONVERT(VARCHAR(7), date, 120)'
+-- You can use columns, functions, or a fixed string like '''Overall'''
+DECLARE @GroupByColumns        NVARCHAR(MAX) = '''Overall'''; --'funnel_category, z_segmentation, CONVERT(VARCHAR(7), date, 120)'
 DECLARE @TotalUsersCol         NVARCHAR(128) = '1'; 
 DECLARE @ConvertedUsersCol     NVARCHAR(128) = 'CASE WHEN max_level_reached = 5 THEN 1 ELSE 0 END'; 
+-- Declare your baseline category here to comapre to
 DECLARE @BaselineValue         NVARCHAR(128) = 'avg'; 
 DECLARE @ExperimentsToInclude  NVARCHAR(MAX) = 'ALL'; 
 
@@ -17,8 +19,6 @@ DECLARE @ExperimentsToInclude  NVARCHAR(MAX) = 'ALL';
 -- [CORE ENGINE]
 -------------------------------------------------------------------------------
 DECLARE @UnionSections NVARCHAR(MAX) = '';
-
--- Robust splitting logic to handle expressions with commas (Pure T-SQL)
 DECLARE @pos INT = 1;
 DECLARE @start INT = 1;
 DECLARE @depth INT = 0;
@@ -37,10 +37,16 @@ BEGIN
         
         IF @dim_val <> ''
         BEGIN
+            -- Extract expression part if ' AS ' exists
+            DECLARE @expr_part NVARCHAR(MAX) = @dim_val;
             DECLARE @detected_alias NVARCHAR(128) = '';
+            
             IF CHARINDEX(' AS ', UPPER(@dim_val)) > 0
+            BEGIN
+                SET @expr_part = LTRIM(RTRIM(SUBSTRING(@dim_val, 1, CHARINDEX(' AS ', UPPER(@dim_val)) - 1)));
                 SET @detected_alias = LTRIM(RTRIM(REPLACE(REPLACE(SUBSTRING(@dim_val, CHARINDEX(' AS ', UPPER(@dim_val)) + 4, LEN(@dim_val)), '[', ''), ']', '')));
-            ELSE IF CHARINDEX('(', @dim_val) = 0 
+            END
+            ELSE IF CHARINDEX('(', @dim_val) = 0 AND CHARINDEX('''', @dim_val) = 0
                 SET @detected_alias = REPLACE(REPLACE(@dim_val, '[', ''), ']', '');
             ELSE
                 SET @detected_alias = 'category_' + CAST(@dim_idx AS NVARCHAR);
@@ -48,15 +54,20 @@ BEGIN
             -- Build a UNION segment for this category
             IF @UnionSections <> '' SET @UnionSections = @UnionSections + ' UNION ALL ';
             
+            -- FIX: Include expression in GROUP BY unless it is a string literal (e.g. 'Overall')
+            DECLARE @GroupByPart NVARCHAR(MAX) = @ExperimentColumn;
+            IF CHARINDEX('''', @expr_part) = 0 
+                SET @GroupByPart = @GroupByPart + ', ' + @expr_part;
+
             SET @UnionSections = @UnionSections + '
     SELECT 
         ''' + @detected_alias + ''' AS category_name,
-        CAST(' + @dim_val + ' AS NVARCHAR(MAX)) AS segment_value,
+        CAST(' + @expr_part + ' AS NVARCHAR(MAX)) AS segment_value,
         ' + @ExperimentColumn + ' AS exp_variant,
         SUM(CAST(' + @TotalUsersCol + ' AS FLOAT)) AS reach,
         (SUM(CAST(' + @ConvertedUsersCol + ' AS FLOAT)) / NULLIF(SUM(CAST(' + @TotalUsersCol + ' AS FLOAT)), 0)) * 100.0 AS cr
     FROM ' + @TableName + '
-    GROUP BY ' + @ExperimentColumn + ', ' + @dim_val;
+    GROUP BY ' + @GroupByPart;
             
             SET @dim_idx = @dim_idx + 1;
         END
@@ -94,7 +105,7 @@ FROM raw_data v
 LEFT JOIN baseline_data b ON v.category_name = b.category_name AND v.segment_value = b.segment_value
 WHERE v.exp_variant ' + CASE WHEN @BaselineValue = 'NULL' THEN 'IS NOT NULL' ELSE '<> ''' + @BaselineValue + '''' END + '
   AND (' + REPLACE(@ExpInclusionFilter, @ExperimentColumn, 'v.exp_variant') + ') 
-	AND v.reach > 200
+	AND v.reach > 10
 ORDER BY v.exp_variant;';
 
 PRINT @SQL;
