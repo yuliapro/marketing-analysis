@@ -49,17 +49,15 @@ https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 ===
 
 
-4. The "Success Formula"
+# 4. "Success Formula"
    
-===Create a single score from multiple attributes to rank users and identify dependencies===
-
 Business Questions:
 - The Success Formula: What attributes do we have at our "Success Score"?
 - Priority Ranking: Which Specific Factors Drive Success? (SHAP Discovery Plot)
   
  * * * Metrics: Random Forest Classification, Scoring, Machine Learning, Shaplay Value * * *
      * 
-# Success Probability Score Model
+
 
 Based on the SHAP analysis and Lift metrics, this formula calculates a **Success Probability Score (0–100)**. It prioritizes individual effort while adjusting for the historical context of the category and the specific experiment.
 
