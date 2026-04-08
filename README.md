@@ -58,8 +58,9 @@ Business Questions:
 - Priority Ranking: How each attributes impact the "Success"?
   
  * * * Metrics: Random Forest Classification, Scoring, Machine Learning, Shaplay Value * * *
+Success drivers are the following attributes: z-segmentation, experiments, funnel_category. Will user a score to predit success for future users.
+<img width="1004" height="894" alt="attributes_analyzer_img" src="https://github.com/user-attachments/assets/bcbeccab-dd08-4a2d-98c7-1cd2a3dc1763" />
 
-<img width="1004" height="1014" alt="attributes_analyzer_img" src="https://github.com/user-attachments/assets/9616f10c-23a8-4545-914d-3ce729d17993" />
  ANALYZE YOUR ATTRIBUTES AUTOMATICALLY here https://github.com/yuliapro/marketing-analysis/blob/main/Which_attibute_drives_Success/attributes_analyzer.py
 <br/>
 
