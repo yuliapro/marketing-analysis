@@ -55,10 +55,15 @@ https://github.com/yuliapro/marketing-analysis/tree/main/the_funnel_compass
 
 Business Questions:
 - The Success Formula: What attributes do we have at our "Success Score"?
-- Priority Ranking: How each attributes impact the "Success"?
+- Priority Ranking: Which Specific Factors Drive Success? (SHAP Discovery Plot)
   
  * * * Metrics: Random Forest Classification, Scoring, Machine Learning, Shaplay Value * * *
-Success drivers are the following attributes: z-segmentation, experiments, funnel_category. Will user a score to predit success for future users.
+Based on SHAP and Lift analyses, here is the streamlined Success Probability Score
+(0–100):$$Score = (Z_{pts} \times 0.65) + (Cat_{pts} \times 0.20) + (Exp_{pts} \times 0.15)$$
+1.Z-Score Points (65% – Individual Performance)
+Normalizes effort while capping outliers:Z $\leq$ -1: 0 pts (Underperformer).Z = 0: 50 pts (Average).Z $\geq$ 2.5: 100 pts (Top Performer).
+2. Category Lift (20% – Historical Context)0% Lift: 50 pts.+50% Lift: 100 pts.
+3. 3. Experiment Boost (15% – Test Impact)Follows Category logic but with lower weight due to its temporary nature.
 <img width="1004" height="894" alt="attributes_analyzer_img" src="https://github.com/user-attachments/assets/bcbeccab-dd08-4a2d-98c7-1cd2a3dc1763" />
 
  ANALYZE YOUR ATTRIBUTES AUTOMATICALLY here https://github.com/yuliapro/marketing-analysis/blob/main/Which_attibute_drives_Success/attributes_analyzer.py
