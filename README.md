@@ -2,7 +2,7 @@
 📈 Marketing Analysis Toolkit (SQL)
 This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and user behavior.
 
-1. The "Norm" Check
+# 1. The "Norm" Check
   
 ===Understand what a "typical" journey looks like and identify if your success is driven by a broad base or a few heavy users===
 
@@ -89,7 +89,7 @@ An additional boost based on the success of the current experiment. It follows t
 ===
 ===
 
-5. The "Intelligence" Check
+# 5. The "Intelligence" Check
    
 === Measure the productivity of your marketing funnel and the ROI of your user experience===
 
@@ -110,7 +110,7 @@ https://github.com/yuliapro/marketing-analysis/tree/main/funnel_analyzer
 ===
 ===
 
-6. The "Game Changer" Check
+#6. The "Game Changer" Check
    
 ===Calculate the true marginal impact of every experiment or funnel step===
 
