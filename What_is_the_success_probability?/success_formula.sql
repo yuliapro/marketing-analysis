@@ -1,3 +1,5 @@
+--ingredients required: user, attributes, attribute_lift, score_formula
+
 WITH user_attributes AS (
     SELECT 
         u.user_id,
