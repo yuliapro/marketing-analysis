@@ -1,4 +1,4 @@
---ingredients required: user, attributes, attribute_lift, score_formula
+--ingredients required: user, attributes, attributes_weight, attribute_lift, score_formula
 
 WITH user_attributes AS (
     SELECT 
