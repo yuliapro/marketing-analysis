@@ -1,4 +1,4 @@
---ingredients required: user, attributes, attributes_weight, attribute_lift, score_formula
+--ingredients required: user, attributes, attributes_weight, attribute_lift, score_formula like  (z_points * 0.65) + (cat_points * 0.20) +  (exp_points * 0.15) AS success_score,
 
 WITH user_attributes AS (
     SELECT 
