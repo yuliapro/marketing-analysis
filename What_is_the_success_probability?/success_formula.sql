@@ -54,8 +54,8 @@ SELECT
         (z_points * 0.65) + 
         (cat_points * 0.20) + 
         (exp_points * 0.15), 
-    2) AS success_probability_score,
+    2) AS success_score,
     -- Simple Success Flag for validation
     CASE WHEN max_level_reached = 5 THEN 1 ELSE 0 END AS actual_success
 FROM scored_data
-ORDER BY success_probability_score DESC;
+ORDER BY success_score DESC;
