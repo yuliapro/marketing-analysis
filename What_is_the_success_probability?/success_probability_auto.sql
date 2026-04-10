@@ -89,7 +89,6 @@ SELECT
     uid AS user_id,
     group_dim AS segment,
     is_success,
-    success_probability_final,
     success_score,
     ROUND(success_probability_final, 4) AS success_probability,
     ROUND(urn_standard_error, 4) AS uncertainty_risk, -- Statistical risk of the segment
