@@ -1,4 +1,4 @@
--- TRUSTOMETER TEMPLATE
+-- PROBABILITY TRUSTOMETER TEMPLATE
 -- This model calculates Success Probability + Uncertainty (Risk) based on sample size.
 -- INSTRUCTIONS: 
 -- 1. STEP 1: Type your actual column names and source table in the 'mapping' CTE.
@@ -11,7 +11,7 @@ WITH mapping AS (
         --------------------------------------------------------- */
         u.user_id              AS uid,            -- <--- Your User ID column
         u.experiment_name      AS group_dim,      -- <--- Column to group by for Trust/Error calc (e.g., experiment_name)
-        u.max_level_reached    AS success_raw,    -- <--- Raw column for success check
+        u.is_success           AS success_raw,    -- <--- Raw column for success check
         z.z_avg_lift           AS l1,             -- <--- Attribute 1 Lift column
         f.cat_avg_lift         AS l2,             -- <--- Attribute 2 Lift column
         e.exp_avg_lift         AS l3              -- <--- Attribute 3 Lift column
@@ -32,10 +32,7 @@ config AS (
         -- Weights for the formula
         0.65 AS w1, 
         0.20 AS w2, 
-        0.15 AS w3,
-        
-        -- Success Condition Logic (1.0 for success, 0.0 for failure)
-        CASE WHEN success_raw = 5 THEN 1.0 ELSE 0.0 END AS is_success
+        0.15 AS w3
     FROM mapping
 ),
 
@@ -88,7 +85,7 @@ bernoulli_layer AS (
 SELECT 
     uid AS user_id,
     group_dim AS segment,
-    is_success,
+    success_raw,
     success_score,
     ROUND(success_probability_final, 4) AS success_probability,
     ROUND(urn_standard_error, 4) AS uncertainty_risk, -- Statistical risk of the segment
