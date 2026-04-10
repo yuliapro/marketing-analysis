@@ -1,4 +1,4 @@
--- PROBABILITY TRUSTOMETER TEMPLATE
+-- TRUSTOMETER TEMPLATE
 -- This model calculates Success Probability + Uncertainty (Risk) based on sample size.
 -- INSTRUCTIONS: 
 -- 1. STEP 1: Type your actual column names and source table in the 'mapping' CTE.
