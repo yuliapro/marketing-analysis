@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 # 1. CONFIGURATION - PUT YOUR INPUTS HERE (AT THE BEGINNING)
 # ==========================================================
 
-# Define the columns you want to use for prediction (Your Attributes / X)
+# Define the columns you want to use for prediction (Your Attributes / X). Must be binary 0 or 1.
 # We exclude 'no_exp' so it acts as the baseline (Control Group)
 ATTRIBUTES = ['exp_0', 'exp_1', 'exp_2', 'exp_3', 'exp_4', 'exp_5', 'exp_7', 'exp_8', 'exp_9']
 
