@@ -3,6 +3,9 @@
 -- INSTRUCTIONS: 
 -- 1. STEP 1: Type your actual column names and source table in the 'mapping' CTE.
 -- 2. STEP 2: Define your weights and success logic in the 'config' CTE.
+-- GROWTH TRUSTOMETER: SCORE DIVERGENCE (KL)
+-- This script calculates Success Probability and the "Sorpresa" (KL Divergence) 
+-- to measure how well the weights fit the reality of the data.
 
 WITH mapping AS (
     SELECT 
@@ -11,13 +14,12 @@ WITH mapping AS (
         --------------------------------------------------------- */
         u.user_id              AS uid,            -- <--- Your User ID column
         u.experiment_name      AS group_dim,      -- <--- Column to group by for Trust/Error calc (e.g., experiment_name)
-        u.is_success           AS success_raw,    -- <--- Raw column for success check
-        z.z_avg_lift           AS l1,             -- <--- Attribute 1 Lift column
+        CAST(u.is_success AS FLOAT) AS is_success, -- <--- Success column (1 or 0)
+        z.cat_avg_lift           AS l1,             -- <--- Attribute 1 Lift column
         f.cat_avg_lift         AS l2,             -- <--- Attribute 2 Lift column
-        e.exp_avg_lift         AS l3              -- <--- Attribute 3 Lift column
+        e.cat_avg_lift         AS l3              -- <--- Attribute 3 Lift column
         
-    FROM Datawarehouse.gold.user_zscore_segmentation u -- <--- Your Source Table here
-    -- Add your JOINs here if your lifts are in other tables:
+    FROM Datawarehouse.gold.user_zscore_segmentation u 
     LEFT JOIN Datawarehouse.gold.dim_by_category f ON f.funnel_category = u.funnel_category
     LEFT JOIN Datawarehouse.gold.dim_by_experiment e ON e.experiment_name = u.experiment_name
     LEFT JOIN Datawarehouse.gold.dim_by_z_segment z ON z.z_segmentation = u.z_segmentation
@@ -35,10 +37,6 @@ config AS (
         0.15 AS w3
     FROM mapping
 ),
-
-/* ---------------------------------------------------------
-           STEP CORE: AUTOMATIC CALCULATION
---------------------------------------------------------- */
 
 scoring_base AS (
     SELECT 
@@ -73,7 +71,6 @@ bernoulli_layer AS (
     SELECT 
         *,
         -- Standard Error of the Urn: sqrt(p*(1-p)/n)
-        -- Represents the statistical "Uncertainty" of the segment
         SQRT(
             (AVG(success_probability_final) OVER(PARTITION BY group_dim) * (1.0 - AVG(success_probability_final) OVER(PARTITION BY group_dim))) 
             / NULLIF(COUNT(uid) OVER(PARTITION BY group_dim), 0)
@@ -81,20 +78,30 @@ bernoulli_layer AS (
     FROM probability_layer
 )
 
--- FINAL OUTPUT: Classification and Trust Metrics
+-- FINAL OUTPUT: Classification, Trust and Divergence (Sorpresa)
 SELECT 
     uid AS user_id,
     group_dim AS segment,
-    success_raw,
+    is_success,
     success_score,
     ROUND(success_probability_final, 4) AS success_probability,
-    ROUND(urn_standard_error, 4) AS uncertainty_risk, -- Statistical risk of the segment
+    ROUND(urn_standard_error, 4) AS uncertainty_risk,
     
-    -- Wolfram-style Segmentation based on Risk and Probability
+    -- KL Divergence (Sorpresa): Mide el error del modelo frente a la realidad
+    -- Se usa una función de ventana para ver el error global en cada fila.
+    AVG(
+        CASE 
+            WHEN is_success = 1 THEN LOG(1.0 / NULLIF(success_probability_final, 0)) / LOG(2)
+            WHEN is_success = 0 THEN LOG(1.0 / NULLIF(1.0 - success_probability_final, 0)) / LOG(2)
+            ELSE 0 
+        END
+    ) OVER() AS sorpresa_global,
+    
+    -- Wolfram-style Segmentation
     CASE 
-        WHEN urn_standard_error > 0.05 THEN 'Class 3: Chaotic (Low Data/High Uncertainty)'
+        WHEN urn_standard_error > 0.05 THEN 'Class 3: Chaotic (Low Data)'
         WHEN success_probability_final > 0.80 AND urn_standard_error <= 0.02 THEN 'Class 1: Stable Success'
-        WHEN success_probability_final BETWEEN 0.40 AND 0.80 THEN 'Class 4: Complex Edge (Sensitive)'
+        WHEN success_probability_final BETWEEN 0.40 AND 0.80 THEN 'Class 4: Complex Edge'
         ELSE 'Class 2: Standard/Periodic'
     END AS trustometer_segmentation
 
