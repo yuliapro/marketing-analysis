@@ -99,6 +99,8 @@ Business Questions:
 - Resource Optimization: Can I earn more with the same resources? Am I wasting effort, or am I spending it intelligently?
   
  * * * Metrics: Solow Growth Model, Efficiency * * *
+<img width="963" height="638" alt="Screenshot 2026-04-17 at 19 05 22" src="https://github.com/user-attachments/assets/f0d523a1-022d-47a8-8485-9a93733f11eb" />
+
 
 <img width="786" height="565" alt="Screenshot 2026-03-25 at 17 34 11" src="https://github.com/user-attachments/assets/e2d664d9-2d37-4aee-8e8b-40f76d4808e8" />
 
