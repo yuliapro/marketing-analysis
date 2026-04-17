@@ -1,6 +1,10 @@
 
 📈 Marketing Analysis Toolkit (SQL)
 This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and user behavior.
+<img width="963" height="684" alt="Screenshot 2026-04-17 at 21 21 35" src="https://github.com/user-attachments/assets/ecc3e9ad-fabc-4904-bef2-30dcad770ec3" />
+
+Input 3 columns: date, clicks, conversions and find out now at my Growth-Trustometer here!
+https://github.com/yuliapro/marketing-analysis/blob/main/What_is_daily_evolution/Growth-Momentum-Analyzer_auto.sql
 
 # 1. The "Norm" Check
   
