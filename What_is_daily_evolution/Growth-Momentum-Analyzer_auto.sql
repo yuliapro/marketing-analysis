@@ -1,7 +1,7 @@
--- GROWTH & DIFFUSION MOMENTUM TEMPLATE (BASS & POLYA)
+-- GROWTH & DIFFUSION MOMENTUM TEMPLATE (BASS & POLYA) + VaR RISK
 -- INSTRUCTIONS: 
 -- Type your actual column names and source table in the 'mapping' CTE below.
--- The rest of the script (Bass Factors, Polya Inertia, Market Share) will update automatically.
+-- The rest of the script (Bass Factors, Polya Inertia, Market Share, VaR) will update automatically.
 
 WITH mapping AS (
     SELECT 
@@ -37,7 +37,7 @@ daily_stats AS (
 ),
 
 calculated_metrics AS (
-    -- Step 4: Cumulative and Market Share calculation
+    -- Step 4: Cumulative, Market Share and Risk Window
     SELECT 
         *,
         SUM(conversions) OVER (ORDER BY date_col ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cumulative_conversions,
@@ -46,7 +46,11 @@ calculated_metrics AS (
             / (SELECT market_potential_size FROM config) AS market_share,
         -- Efficiency (f(t)/[1-F(t)])
         CAST(conversions AS FLOAT) 
-            / NULLIF((SELECT market_potential_size FROM config) - (SUM(conversions) OVER (ORDER BY date_col ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) - conversions), 0) AS efficiency
+            / NULLIF((SELECT market_potential_size FROM config) - (SUM(conversions) OVER (ORDER BY date_col ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) - conversions), 0) AS efficiency,
+        
+        -- Statistical windows for VaR
+        AVG(daily_cr) OVER (ORDER BY date_col ROWS BETWEEN 7 PRECEDING AND 1 PRECEDING) AS mu_cr,
+        STDEV(daily_cr) OVER (ORDER BY date_col ROWS BETWEEN 7 PRECEDING AND 1 PRECEDING) AS sigma_cr
     FROM daily_stats
 ),
 
@@ -65,12 +69,16 @@ diffusion_factors AS (
     FROM calculated_metrics
 )
 
--- FINAL REPORT: Growth Dynamics
+-- FINAL REPORT: Growth Dynamics & Risk Analysis
 SELECT 
     date_col AS date,
     users,
     conversions,
     ROUND(daily_cr * 100, 2) AS cr_perc,
+    
+    -- VALUE AT RISK (VaR): Minimum expected conversions at 95% confidence
+    ROUND(users * (mu_cr - (1.645 * sigma_cr)), 2) AS var_conversions_95,
+    
     cumulative_conversions,
     ROUND(market_share, 4) AS market_share,
     ROUND(efficiency, 4) AS capture_efficiency,
