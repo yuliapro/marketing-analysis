@@ -6,6 +6,7 @@
    3. Detecting "Lone Wolves": Users who succeed in low-consensus areas are your "Innovators." Studying them helps you find new use cases or underserved niches.
    4. Early Warning System: If local_consensus drops below historical_inertia, the script warns you that a segment is COOLING before it impacts your monthly reports.
 */
+-- -------------------------------------------------------------------------------------
 -- MICRO-MOMENT DETECTOR TEMPLATE (GAME OF LIFE + POLYA)
 -- -------------------------------------------------------------------------------------
 -- Goal: Detect winning streaks, missing links, and historical reinforcement.
@@ -28,7 +29,7 @@ WITH mapping AS (
         u.z_segmentation       AS dim_3          
         
     FROM Datawarehouse.gold.user_success_score_table u 
-  --  WHERE (u.z_score BETWEEN -5 AND 5) OR u.z_score IS NULL 
+   WHERE funnel_category='fasting' AND experiment_name='exp_0' AND z_segmentation='avg'
 ),
 
 cellular_neighborhood AS (
@@ -42,7 +43,8 @@ cellular_neighborhood AS (
             ROWS BETWEEN 15 PRECEDING AND 15 FOLLOWING
         ), 4) AS neighborhood_avg,
         
-        -- LOCAL DISSONANCE: Stability of the local signal
+        -- LOCAL DISSONANCE: Stability of the local signal 
+        --  STABILITY: How similar are users in this group? (Low stdev = high stability)     WHEN zone_stdev < 0.25 THEN 'Predictive' WHEN zone_stdev < 0.45 THEN 'Moderate'
         ROUND(STDEV(is_success) OVER(
             PARTITION BY dim_1, dim_2, dim_3 
             ORDER BY time_col, uid 
@@ -67,6 +69,8 @@ pressure_layer AS (
     SELECT 
         *,
         ROUND(neighborhood_avg - is_success, 4) AS cellular_pressure
+        -- 3. DISSONANCE: How much did THIS user defy their group's norm?
+        ,ABS(is_success - neighborhood_avg) / NULLIF(local_dissonance, 0) AS individual_dissonance
     FROM cellular_neighborhood
 ),
 
@@ -87,14 +91,29 @@ SELECT
     is_success,
     
     -- Real-time Signals
-    ROUND(neighborhood_avg, 4) AS local_consensus,
-    ROUND(local_dissonance, 4) AS signal_instability,
-    ROUND(cellular_pressure, 4) AS local_pressure,
-    ROUND(polya_momentum, 4) AS historical_inertia,
+    --is there a sinning steak right now? 30 users success rate
+    ROUND(neighborhood_avg, 4) AS consensus,
+   -- How much did THIS user defy their group's norm?
+    ROUND(individual_dissonance, 4) AS individual_dissonance,
+    --norm or luck? low - uniform, high - random,
+    ROUND(local_dissonance, 4) AS instability,
+    --what other succeded?
+    ROUND(cellular_pressure, 4) AS pressure,
+    --improoving or fading trend?
+    ROUND(polya_momentum, 4) AS inertia,
     
     -- Sigmoid Probabilities
-    ROUND(1.0 / (1.0 + EXP(-ISNULL(z_consensus, 0))), 4) AS prob_winning_streak,
-    ROUND(1.0 / (1.0 + EXP(-ISNULL(z_polya, 0))), 4) AS prob_momentum_trust,
+    ROUND(1.0 / (1.0 + EXP(-ISNULL(z_consensus, 0))), 4) AS p_winning_streak,
+    ROUND(1.0 / (1.0 + EXP(-ISNULL(z_polya, 0))), 4) AS p_momentum_trust,
+
+    -- LYAPUNOV DELTA (dV/dt)
+    ROUND(
+        POWER(neighborhood_avg - polya_momentum, 2) - 
+        LAG(POWER(neighborhood_avg - polya_momentum, 2)) OVER (
+            PARTITION BY dim_1, dim_2, dim_3 
+            ORDER BY time_col, uid
+        )
+    , 4) AS lyapunov_delta,
 
     -- SYSTEM CLASSIFICATION
     CASE 
@@ -111,7 +130,13 @@ SELECT
         WHEN cellular_pressure >= 0.5 THEN 'RETARGET: Re-engage'
         WHEN polya_momentum < 0.15 AND neighborhood_avg < 0.15 THEN 'PIVOT: Low trust segment'
         ELSE 'OBSERVE'
-    END AS action_plan
+    END AS action_plan,
+           CASE 
+            WHEN individual_dissonance < 0.8 THEN 'Follower'
+            WHEN individual_dissonance > 1.2 THEN 'Outlier'
+            ELSE 'Caos'
+        END AS social_role
 
 FROM normalization
 ORDER BY time_col DESC;
+
