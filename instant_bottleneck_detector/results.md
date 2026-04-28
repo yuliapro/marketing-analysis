@@ -1,4 +1,7 @@
 
+  <img width="1811" height="1379" alt="output" src="https://github.com/user-attachments/assets/9df02dbb-844d-4929-9dbc-dff8d9d8730b" />
+
+  
   1. Is this conversion drop an anomaly or "business as usual"?
    * Metric: Divergence (Consensus vs. Inertia).
    * The Answer: It distinguishes whether a drop-off is part of the funnel's inherent difficulty (Inertia) or if something broke recently (Negative Divergence). This
