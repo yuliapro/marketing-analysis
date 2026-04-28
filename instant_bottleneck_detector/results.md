@@ -1,5 +1,11 @@
 
-  <img width="1811" height="1379" alt="output" src="https://github.com/user-attachments/assets/9df02dbb-844d-4929-9dbc-dff8d9d8730b" />
+  Dashboard Insights:
+   1. Flow Momentum (Top): Compares the real-time efficiency (Consensus) of every funnel level against its historical norm (Inertia). It visualizes the "energy" of each transition.
+   2. Divergence Analysis (Middle-Left): Tracks anomalies. Red shading indicates a funnel level is "heating up" (performing better than history), while Blue shading indicates a cooling trend or efficiency drop.
+   3. Friction Map (Middle-Right): A bar chart that immediately identifies which funnel level has the highest resistance (Difficulty), allowing for rapid prioritization of UX fixes.
+   4. System Stability (Bottom-Left): A pie chart showing the health mix of your ecosystem (Optimized vs. Clogged vs. Turbulent).
+   5. Strategic Summary (Bottom-Right): A concise text diagnostic that identifies the top bottleneck and recommends the next strategic move (Scale, Fix, or Re-design).
+   6.   <img width="1811" height="1379" alt="output" src="https://github.com/user-attachments/assets/9df02dbb-844d-4929-9dbc-dff8d9d8730b" />
 
   
   1. Is this conversion drop an anomaly or "business as usual"?
