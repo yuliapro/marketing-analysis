@@ -12,7 +12,7 @@ This script addresses the following key business questions:
    
 3. OPTIMIZATION: Which segments or experiments are generating "High-Quality" 
    leads with the highest conversion potential?
-
+INPUT REQUIRED: where #tut for connection, file, non_cum columns, attribute columns, targer column
 DATA SOURCE: Datawarehouse.gold.user_zscore_segmentation
 MODEL: Random Forest Classifier (Supervised Learning)
 ================================================================================
