@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt # ¡Importante para los gráficos!
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
 # 1. CONFIGURACIÓN #tut 
 conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=Datawarehouse;UID=sa;PWD=TuPasswordFuerte123;TrustServerCertificate=yes'
@@ -50,7 +51,7 @@ try:
         # ==========================================================
         
         # 1. Traducir texto a números #tut 
-        cats = ['funnel_type', 'funnel_category', 'experiment_name', 'experiment_group']
+        cats = ['funnel_type', 'funnel_category', 'experiment_name']
         le = LabelEncoder()
         for col in cats:
             df[col] = le.fit_transform(df[col].astype(str))
@@ -73,10 +74,22 @@ try:
         modelo_rf = RandomForestClassifier(n_estimators=100, random_state=42)
         modelo_rf.fit(X_train, y_train)
 
-        # Generar predicciones para toda la tabla
+# A) Predicciones para el EXAMEN (esto es para calcular el Accuracy)
+        rf_predictions_test = modelo_rf.predict(X_test)
+
+        # B) Calcular el Accuracy Score correctamente
+        # Comparamos la realidad (y_test) con las adivinanzas (rf_predictions_test)
+        score = accuracy_score(y_test, rf_predictions_test)
+
+        # C) Predicciones para TODA la tabla (esto es para tu columna final)
         df['prediction_result'] = modelo_rf.predict(X)
         df['success_probability'] = modelo_rf.predict_proba(X)[:, 1]
 
+        # 3. Mostrar el resultado
+        print(f"\n✅ MODEL ACCURACY: {score:.2%}")
+        print("---------------------------------------")
+
+         
         # --- ANÁLISIS DE IMPORTANCIA (Ahora con la sangría correcta) ---
         importancias = modelo_rf.feature_importances_
         tabla_importancia = pd.Series(importancias, index=X.columns).sort_values(ascending=False)
