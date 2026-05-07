@@ -21,15 +21,15 @@ import pandas as pd
 import numpy as np
 import pyodbc
 import os
-import matplotlib.pyplot as plt # ¡Importante para los gráficos!
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV # <--- Añadido GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-# 1. CONFIGURACIÓN #tut 
+# 1. CONFIGURACIÓN #tut
 conn_str = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost,1433;DATABASE=Datawarehouse;UID=sa;PWD=TuPasswordFuerte123;TrustServerCertificate=yes'
-sql_file_path = '/Users/yulia/analytics/user_attributes.sql'
+sql_file_path = '/Users/yulia/analytics/user_attributes.sql' #tut - Path to your SQL query
 
 # 2. CARGA DE DATOS Y PROCESO
 try:
@@ -47,70 +47,59 @@ try:
         print("La tabla está vacía.")
     else:
         # ==========================================================
-        # 3. PROCESAMIENTO
+        # 3. PROCESAMIENTO (Dentro del bloque else)
         # ==========================================================
         
-        # 1. Traducir texto a números #tut 
-        cats = ['funnel_type', 'funnel_category', 'experiment_name']
-        le = LabelEncoder()
-        for col in cats:
-            df[col] = le.fit_transform(df[col].astype(str))
+        # A. Limpieza de columnas: Dejamos solo los CASE de SQL y métricas numéricas #tut
+        # Tiramos user_id, date y los textos originales porque ya tienes los "dummies" en SQL
+        X = df.drop(['user_id', 'date', 'funnel_type', 'funnel_category', 'experiment_name', 'is_success'], 
+                    axis=1, errors='ignore') #tut - Columns to exclude
+        y = df['is_success'] #tut - Target variable (what to predict)
 
-        # 2. Limpieza de ruido #tut 
-        df_limpio = df.drop(['user_id', 'date'], axis=1)
+        # Dividimos en entrenamiento y prueba para validar al final
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        # 3. Separar X e y #tut 
-        X = df_limpio.drop('is_success', axis=1)
-        y = df_limpio['is_success']
+        # B. Definir el Menú de Opciones (param_grid) #tut
+        param_grid = {
+            'n_estimators': [100, 200], #tut - Number of trees
+            'max_depth': [10, 20, None], #tut - Depth of trees
+            'min_samples_split': [2, 5] #tut - Minimum samples to split a node
+        }
 
-        # 4. Dividir en Entrenamiento y Prueba
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+        # C. Configurar la búsqueda inteligente
+        print("Iniciando búsqueda de mejores parámetros (GridSearch)...")
+        grid_search = GridSearchCV(
+            estimator=RandomForestClassifier(random_state=42),
+            param_grid=param_grid,
+            cv=5, 
+            n_jobs=-1,
+            verbose=1
+        )
 
-        # ==========================================================
-        # 4. MODELO Y PREDICCIÓN
-        # ==========================================================
+        # D. Entrenar (Aquí ocurre la magia)
+        grid_search.fit(X_train, y_train)
+
+        # E. Resultados
+        print(f"\n✅ MEJOR CONFIGURACIÓN ENCONTRADA: {grid_search.best_params_}")
         
-        print("Entrenando el Bosque Aleatorio...")
-        modelo_rf = RandomForestClassifier(n_estimators=100, random_state=42)
-        modelo_rf.fit(X_train, y_train)
+        # Usar el mejor modelo para predecir en el test
+        mejor_modelo = grid_search.best_estimator_
+        predicciones = mejor_modelo.predict(X_test)
+        score = accuracy_score(y_test, predicciones)
 
-# A) Predicciones para el EXAMEN (esto es para calcular el Accuracy)
-        rf_predictions_test = modelo_rf.predict(X_test)
+        print(f"📊 Accuracy del mejor modelo: {score:.2%}")
 
-        # B) Calcular el Accuracy Score correctamente
-        # Comparamos la realidad (y_test) con las adivinanzas (rf_predictions_test)
-        score = accuracy_score(y_test, rf_predictions_test)
-
-        # C) Predicciones para TODA la tabla (esto es para tu columna final)
-        df['prediction_result'] = modelo_rf.predict(X)
-        df['success_probability'] = modelo_rf.predict_proba(X)[:, 1]
-
-        # 3. Mostrar el resultado
-        print(f"\n✅ MODEL ACCURACY: {score:.2%}")
-        print("---------------------------------------")
-
-         
-        # --- ANÁLISIS DE IMPORTANCIA (Ahora con la sangría correcta) ---
-        importancias = modelo_rf.feature_importances_
+        # --- IMPORTANCIA DE ATRIBUTOS ---
+        importancias = mejor_modelo.feature_importances_
         tabla_importancia = pd.Series(importancias, index=X.columns).sort_values(ascending=False)
 
-        print("\n--- IMPACTO DE ATRIBUTOS EN EL ÉXITO ---")
-        print(tabla_importancia)
+        print("\n--- TOP 10 ATRIBUTOS QUE INFLUYEN EN EL ÉXITO ---")
+        print(tabla_importancia.head(10))
 
-        # Gráfico de importancia
-        plt.figure(figsize=(10, 6))
-        tabla_importancia.plot(kind='barh', color='skyblue')
-        plt.title('¿Qué atributos influyen más en el éxito?')
-        plt.gca().invert_yaxis() # Para que el más importante salga arriba
+        # Graficar
+        tabla_importancia.head(15).plot(kind='barh', color='lightgreen')
+        plt.title('Atributos más influyentes (GridSearch Best Model)')
         plt.show()
-
-        # 5. VERIFICACIÓN FINAL
-        print("\n--- RESULTADOS (Primeras 10 filas) ---")
-        print(df[['user_id', 'is_success', 'prediction_result', 'success_probability']].head(10))
-
-        # Exportar resultados
-        df.to_csv('resultados_prediccion.csv', index=False)
-        print("\nArchivo 'resultados_prediccion.csv' guardado con éxito.")
 
 except Exception as e:
     print(f"HA OCURRIDO UN ERROR: {e}")
