@@ -1,5 +1,6 @@
 <img width="1420" height="1390" alt="image" src="https://github.com/user-attachments/assets/8c56d2be-e489-42fc-8e5b-bbbd8b5018c8" />
 # Behavioral Physics Dashboard 📊🧠
+<img width="1849" height="723" alt="usr_journey_momentum" src="https://github.com/user-attachments/assets/1bbc3bda-0107-40c3-88eb-60ca0a0213c7" />
 
 > Turning simple "Duration" metrics into a psychological map of your user's session.
 
