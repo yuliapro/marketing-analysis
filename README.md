@@ -2,6 +2,8 @@
 📈 Marketing Analysis Toolkit (SQL)
 This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and user behavior.
 # 0. When it's not too late to save your user?
+<img width="1420" height="1390" alt="image" src="https://github.com/user-attachments/assets/8ee999a9-176b-4329-a785-8a2cdffa57e5" />
+Tool link https://github.com/yuliapro/marketing-analysis/tree/main/When_its_too_late_to_save_user%3F
 # Behavioral Physics Dashboard 📊🧠
 
 > Turning simple "Duration" metrics into a psychological map of your user's session.
@@ -64,7 +66,7 @@ The **Behavioral Physics Dashboard** is built to answer the most critical "Why" 
 | **Phase Shift Markers** | State Transitions | The boundary line for last-chance retention triggers. |
 
 ---
-<img width="1420" height="1390" alt="image" src="https://github.com/user-attachments/assets/8ee999a9-176b-4329-a785-8a2cdffa57e5" />
+
 
 # 0. The "Growth" Check
 <img width="963" height="684" alt="Screenshot 2026-04-17 at 21 21 35" src="https://github.com/user-attachments/assets/ecc3e9ad-fabc-4904-bef2-30dcad770ec3" />
