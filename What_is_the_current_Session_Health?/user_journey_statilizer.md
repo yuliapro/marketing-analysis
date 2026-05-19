@@ -5,7 +5,52 @@
 Traditional funnel analytics tell you *where* users drop off. **User Journey Stabilizer** tells you *why*—and exactly what to do about it. By treating user progression as a dynamic physical system, this engine calculates momentum, instability, and intent flux to prescribe surgical product interventions in real-time.
 <img width="1790" height="989" alt="image" src="https://github.com/user-attachments/assets/7892e5d9-b9ce-44b3-8b0a-a2790cda124c" />
 
+### 📊 Core Analysis Framework
 
+#### 1. What does "Success" look like in the journey?
+* **The Answer:** Success is identified by high PSI ($\psi > 2.0$) and positive Intent Flux. 
+* **The Metric:** In the graphs, these are the **Green bubbles (Flow State)**. It marks a coordinate where users exhibit high retention probability and high conversion momentum simultaneously.
+
+---
+
+#### 2. What is the recommended product action right now?
+* **The Answer:** The script prescribes four **"Surgical Interventions"** based on the user's current stability matrix:
+  * 🚀 **Upsell / Monetize:** For users in "Flow" ($\psi > 2.0$).
+  * 💎 **Reward / Incentivize:** For users "At the Edge" ($\psi \in [0.5, 2.0]$).
+  * 🗺️ **Guide / Tutorial:** For users in "Stagnant" zones ($\psi \in [0.0, 0.5]$).
+  * 🩹 **Recover / Re-engage:** For users in "Conflict" zones ($\psi < 0.0$).
+
+---
+
+#### 3. At what exact minute and level do users lose interest?
+* **The Answer:** The *Dual-Axis Stability Graph* shows exactly where the PSI drops below `0.0`. 
+* **The Insight:** It pinpoints whether the issue is **Time-based** (e.g., users get bored at Minute 10) or **Complexity-based** (e.g., Level 5 acts as a "wall" causing systemic instability).
+
+---
+
+#### 4. Which parts of the journey are "leaking" energy?
+* **The Answer:** Behavioral steps displaying **Negative Intent Flux** or high Instability.
+* **The Insight:** These are points where system energy turns chaotic—meaning the product environment is losing users faster than it is converting them.
+
+---
+
+#### 5. Where is the journey's "Tipping Point"?
+* **The Answer:** Defined by the **Grip (Tipping Point)** metric.
+* **The Insight:** It identifies the micro-moment where a user's survival probability permanently deviates from the baseline average. This represents the **"Point of No Return"** where tactical interventions must be deployed to prevent churn.
+
+---
+
+#### 6. Is the user experience "Healthy" or "Turbulent"?
+* **The Answer:** Assessed via the global map distribution within the **Strategic Action Map**.
+* **The Insight:** 
+  * 🔴 / 🔵 **Mostly Red or Blue:** The user journey is fundamentally unstable and requires immediate UX refactoring.
+  * 🟢 / 🟡 **Mostly Green and Yellow:** A high-performing user journey optimized for aggressive monetization.
+
+---
+
+#### 7. Does complexity (Level) scale correctly with time?
+* **The Answer:** Evaluated by mapping coordinates across **PSI vs. M/L (Minutes/Level)**. 
+* **The Insight:** If PSI drops sharply as the Level increases (regardless of total time spent), the application or game mechanics are scaling in difficulty too aggressively.
 ---
 
 ## ✨ Core Concept: The Psychological Stability Index (PSI / $\psi$)
