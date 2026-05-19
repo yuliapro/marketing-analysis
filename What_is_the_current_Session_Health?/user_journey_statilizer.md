@@ -1,41 +1,58 @@
 # 🧭 User Journey Stabilizer
-    2
-    3 **An advanced SQL analytical framework that applies thermodynamic principles and statistical
-      physics to map, diagnose, and stabilize user journeys.**
-    4
-    5 Traditional funnel analytics tell you *where* users drop off. **User Journey Stabilizer**
-      tells you *why*—and exactly what to do about it. By treating user progression as a dynamic
-      physical system, this engine calculates momentum, instability, and intent flux to prescribe
-      surgical product interventions in real-time.
-    6
-    7 ## ✨ Core Concept: The Psychological Stability Index (PSI / ψ)
-    8 Instead of just counting conversions, this framework calculates a user's **PSI (ψ)** based
-      on their Behavioral Momentum and System Instability. It classifies user states into
-      actionable health categories:
-    9
-   10 | PSI (ψ) | Journey Health | Product Action | System Intent |
-   11 | :--- | :--- | :--- | :--- |
-   12 | **> 2.0** | 🌊 **Flow State** | **UPSELL / MONETIZE** | Locked in. Momentum > Instability.
-      |
-   13 | **0.5 to 2.0** | ⚠️ **Turbulent** | **REWARD / BOOST** | On the edge. Needs motivation. |
-   14 | **0.0 to 0.5** | 🧱 **Stagnant** | **GUIDE / TUTORIAL** | High friction. Instability >
-      Momentum. |
-   15 | **< 0.0** | 💥 **Conflict** | **RECOVER / RE-ENGAGE**| System crashing. High churn risk. |
-   16
-   17 ## 🚀 Key Capabilities
-   18
-   19 *   **Tipping Point Detection:** Identifies the exact micro-moments where user survival
-      deviates from the population average.
-   20 *   **Intent Flux Measurement:** Measures the ratio of conversion vs. churn to see if a
-      journey step is "heating up" (efficient) or "leaking" (wasteful).
-   21 *   **Dynamic Z-Scoring:** Self-healing statistical thresholds that adapt to your data's
-      natural variance.
-   22 *   **Surgical Interventions:** Outputs a direct `action` column mapped to the user's
-      specific progression step (Time x Difficulty).
-   23
-   24 ## 🛠️ Tech Stack
-   25 *   **Language:** T-SQL (Dynamic SQL)
-   26 *   **Use Case:** Data Warehousing, Product Analytics, Behavioral Data Science
+
+**An advanced SQL analytical framework that applies thermodynamic principles and statistical physics to map, diagnose, and stabilize user journeys.**
+
+Traditional funnel analytics tell you *where* users drop off. **User Journey Stabilizer** tells you *why*—and exactly what to do about it. By treating user progression as a dynamic physical system, this engine calculates momentum, instability, and intent flux to prescribe surgical product interventions in real-time.
+
+---
+
+## ✨ Core Concept: The Psychological Stability Index (PSI / $\psi$)
+
+Instead of just counting conversions, this framework calculates a user's **PSI ($\psi$)** by analyzing their standardized Behavioral Momentum relative to System Instability. It effortlessly classifies user sessions into four actionable health states:
+
+| PSI ($\psi$) | Journey Health | Product Action | System Intent |
+| :--- | :--- | :--- | :--- |
+| **$> 2.0$** | 🌊 **Flow State** | `UPSELL / MONETIZE` | **Locked in.** Momentum completely dominates instability. |
+| **$0.5 \text{ to } 2.0$** | ⚠️ **Turbulent** | `REWARD / BOOST` | **On the edge.** User is highly volatile; needs motivational hooks. |
+| **$0.0 \text{ to } 0.5$** | 🧱 **Stagnant** | `GUIDE / TUTORIAL` | **High friction.** User is bogged down; Instability > Momentum. |
+| **$< 0.0$** | 💥 **Conflict** | `RECOVER / RE-ENGAGE` | **System crashing.** Terminal state transition with severe churn risk. |
+
+---
+
+## 🚀 Key Strategic Questions Answered
+
+The Behavioral Physics Engine goes beyond basic reporting to answer your core product-strategy questions automatically:
+
+### 🧠 User Psychology & State of Mind
+* **Where are users achieving peak "Flow State"?** Pinpoints the precise time-level coordinates where user engagement dominates friction, signaling the absolute best window to run monetization prompts, request app store reviews, or present upsells.
+* **Where are users sitting "At the Edge" of abandonment?** Highlights high-turbulence coordinates where user stability is highly volatile and even minor micro-UI friction will cause immediate drop-off.
+* **Where is the journey causing "System Conflict"?** Maps coordinates where user intent breaks down into frustration or technical fatigue, calling for immediate automated intervention or support.
+
+### 📐 Flow Dynamics & Energy Loss
+* **How strong is the product’s "Grip" on users at any given step?** Detects exactly when and where a cohort's survival probability deviates drastically from the historical population baseline.
+* **Is the session "Heating Up" or "Leaking Energy"?** Measures the system's overall efficiency ratio—tracking whether the velocity of conversions is outrunning the velocity of churn.
+* **What is the real-time Markov survival probability for a user?** Calculates the exact statistical chance that a user at a specific level can withstand the friction of the next chronological minute.
+
+### 🎯 Automated Product Intervention
+* **Which users should we monetize, and which must we educate?** Surgically segments high-momentum power users ready for a premium feature upsell from stagnant users who need a tutorial card or a skip option.
+* **Where must we deploy pre-emptive triggers to save the cohort?** Maps the exact coordinates to fire automated micro-retention hooks *just before* the stability index drops into terminal territory.
+
+---
+
+## ⚡ Key Capabilities
+
+* 🎯 **Tipping Point Detection:** Identifies the exact micro-moments where user survival deviates sharply from the population average.
+* 📈 **Intent Flux Measurement:** Measures the ratio of conversion vs. churn to instantly see if a journey step is "heating up" (efficient) or "leaking" (wasteful).
+* 🔄 **Dynamic Z-Scoring:** Built-in self-healing statistical thresholds that dynamically adapt to your data's natural variance.
+* ⚔️ **Surgical Interventions:** Outputs a clean, pre-coded `action` column mapped straight to the user's specific 2D progression step (Time $\times$ Difficulty).
+
+---
+
+## 🛠️ Tech Stack
+
+* **Language:** T-SQL (Dynamic SQL Compiler)
+* **Compatibility:** Microsoft SQL Server / Azure SQL / Synapse Analytics Data Warehouses
+* **Use Case:** Advanced Product Analytics, Behavioral Data Science, Growth Engineering
    
    The script is a powerful 2D (time and funnel_level) behavioral diagnostics tool of "Session Health Score”.
 it helps you quickly diagnose the health of each Time-Level coordinate.
