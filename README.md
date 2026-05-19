@@ -2,7 +2,7 @@
 📈 Marketing Analysis Toolkit (SQL)
 This repository contains a collection of advanced statistical models designed to extract deep behavioral insights from marketing traffic, experiment data, and user behavior.
 # 0. When it's not too late to save your user?
-### 📊 Core Analysis Framework
+### 📊 User Journey Statilizer
 <img width="1214" height="667" alt="Screenshot 2026-05-19 at 15 19 24" src="https://github.com/user-attachments/assets/425973f0-d09c-4e97-841d-10301c181cb2" />
 
 #### 1. What does "Success" look like in the journey?
