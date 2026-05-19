@@ -3,7 +3,8 @@
 **An advanced SQL analytical framework that applies thermodynamic principles and statistical physics to map, diagnose, and stabilize user journeys.**
 
 Traditional funnel analytics tell you *where* users drop off. **User Journey Stabilizer** tells you *why*—and exactly what to do about it. By treating user progression as a dynamic physical system, this engine calculates momentum, instability, and intent flux to prescribe surgical product interventions in real-time.
-<img width="1486" height="790" alt="image" src="https://github.com/user-attachments/assets/cc1aea60-e22d-430f-9313-f9ae5e29ec8c" />
+<img width="1790" height="989" alt="image" src="https://github.com/user-attachments/assets/7892e5d9-b9ce-44b3-8b0a-a2790cda124c" />
+
 
 ---
 
