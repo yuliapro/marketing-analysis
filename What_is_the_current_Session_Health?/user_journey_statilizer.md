@@ -1,4 +1,4 @@
-# 🧭 User Journey Stabilizer
+# 🧭 User Journey Statilizer
 
 **An advanced SQL analytical framework that applies thermodynamic principles and statistical physics to map, diagnose, and stabilize user journeys.**
 
